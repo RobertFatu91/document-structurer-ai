@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Document, Packer, Paragraph } from "docx";
+import jsPDF from "jspdf";
 
 export default function Home() {
   const [text, setText] = useState("");
@@ -104,6 +105,19 @@ export default function Home() {
     document.body.appendChild(element);
     element.click();
     document.body.removeChild(element);
+  }
+
+  function downloadPDF() {
+    if (!result) return;
+
+    const doc = new jsPDF();
+    const lines = doc.splitTextToSize(result, 180);
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(12);
+    doc.text(lines, 15, 20);
+
+    doc.save("structured-document.pdf");
   }
 
   async function downloadDocx() {
@@ -305,6 +319,18 @@ call supplier tomorrow"
           }}
         >
           Download TXT
+        </button>
+
+        <button
+          onClick={downloadPDF}
+          disabled={!result}
+          style={{
+            padding: "10px 20px",
+            cursor: "pointer",
+            borderRadius: "8px",
+          }}
+        >
+          Download PDF
         </button>
 
         <button
