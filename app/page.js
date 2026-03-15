@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Document, Packer, Paragraph } from "docx";
 
 export default function Home() {
@@ -10,14 +10,24 @@ export default function Home() {
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [isPro, setIsPro] = useState(false);
+
+  useEffect(() => {
+    const proStatus = localStorage.getItem("isPro");
+    if (proStatus === "true") {
+      setIsPro(true);
+    }
+  }, []);
 
   async function transform() {
-    let count = localStorage.getItem("transformsCount");
-    count = count ? parseInt(count) : 0;
+    if (!isPro) {
+      let count = localStorage.getItem("transformsCount");
+      count = count ? parseInt(count) : 0;
 
-    if (count >= 2) {
-      alert("Free plan limit reached. Upgrade to Pro for unlimited transforms.");
-      return;
+      if (count >= 2) {
+        alert("Free plan limit reached. Upgrade to Pro for unlimited transforms.");
+        return;
+      }
     }
 
     try {
@@ -46,12 +56,34 @@ export default function Home() {
       const data = await res.json();
       setResult(data.result || data.error || "No result");
 
-      count += 1;
-      localStorage.setItem("transformsCount", count);
+      if (!isPro) {
+        let count = localStorage.getItem("transformsCount");
+        count = count ? parseInt(count) : 0;
+        count += 1;
+        localStorage.setItem("transformsCount", count);
+      }
     } catch (error) {
       setResult("Error: " + error.message);
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function upgradeToPro() {
+    try {
+      const res = await fetch("/api/create-checkout-session", {
+        method: "POST",
+      });
+
+      const data = await res.json();
+
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        alert("Could not start checkout.");
+      }
+    } catch (error) {
+      alert("Checkout error.");
     }
   }
 
@@ -318,9 +350,29 @@ call supplier tomorrow"
         <p style={{ marginBottom: "10px" }}>
           <strong>Free:</strong> 2 transforms total
         </p>
-        <p style={{ marginBottom: 0 }}>
-          <strong>Pro:</strong> £7 / month — unlimited transforms, exports and advanced use
+        <p style={{ marginBottom: "15px" }}>
+          <strong>Pro:</strong> £7 / month — unlimited transforms
         </p>
+
+        {!isPro ? (
+          <button
+            onClick={upgradeToPro}
+            style={{
+              background: "black",
+              color: "white",
+              padding: "12px 20px",
+              border: "none",
+              borderRadius: "8px",
+              cursor: "pointer",
+            }}
+          >
+            Upgrade to Pro — £7/month
+          </button>
+        ) : (
+          <div style={{ color: "green", fontWeight: "bold" }}>
+            Pro mode active
+          </div>
+        )}
       </div>
     </div>
   );
