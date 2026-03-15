@@ -15,7 +15,7 @@ export const metadata = {
   title: "Document Structurer AI",
   description: "Turn messy notes into clear structured reports in seconds. Perfect for meetings, brainstorming and raw ideas.",
   verification: {
-    google: "VakckCusPVDcSv"
+    google: "VakcKCusPVDcSv1kaFjrMZhWJjiMZRyp3zBm1C0wJtI"
   }
 };
 
