@@ -1,11 +1,23 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { seoKeywords } from "../data/seoKeywords";
+
+function slugToTitle(slug) {
+  return slug
+    .split("-")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+}
 
 export default function Home() {
   const [input, setInput] = useState("");
   const [output, setOutput] = useState("");
   const [proMode, setProMode] = useState(false);
+
+  const featuredSeoPages = useMemo(() => {
+    return seoKeywords.slice(0, 12);
+  }, []);
 
   const handleGenerate = () => {
     if (!input.trim()) return;
@@ -63,8 +75,7 @@ ACTION ITEMS
       </h1>
 
       <p style={{ fontSize: "18px", marginBottom: "30px" }}>
-        Turn messy notes into structured summaries, key points and action items
-        instantly.
+        Turn messy notes into structured summaries, key points and action items instantly.
       </p>
 
       <textarea
@@ -129,6 +140,40 @@ ACTION ITEMS
             Pro mode active
           </div>
         )}
+      </div>
+
+      <div style={{ marginTop: "60px" }}>
+        <h2 style={{ marginBottom: "16px" }}>Popular AI note tools</h2>
+
+        <p style={{ marginBottom: "18px", lineHeight: "1.6", color: "#444" }}>
+          Explore common use cases for turning messy notes into structured summaries,
+          reports, follow-ups and action items.
+        </p>
+
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+            gap: "12px"
+          }}
+        >
+          {featuredSeoPages.map((slug) => (
+            <a
+              key={slug}
+              href={`/seo/${slug}`}
+              style={{
+                textDecoration: "none",
+                color: "black",
+                border: "1px solid #ddd",
+                padding: "14px",
+                borderRadius: "8px",
+                background: "#fafafa"
+              }}
+            >
+              {slugToTitle(slug)}
+            </a>
+          ))}
+        </div>
       </div>
     </div>
   );
