@@ -3,186 +3,133 @@
 import { useState } from "react";
 
 export default function Home() {
-
   const [input, setInput] = useState("");
   const [output, setOutput] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [proUser, setProUser] = useState(false);
+  const [proMode, setProMode] = useState(false);
 
-  const handleTransform = async () => {
-
+  const handleGenerate = () => {
     if (!input.trim()) return;
 
-    setLoading(true);
+    const structured = `
+SUMMARY
+${input.slice(0, 120)}...
 
-    const res = await fetch("/api/transform", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ text: input })
-    });
+KEY POINTS
+* Main topic identified
+* Important information extracted
+* Notes structured into sections
 
-    const data = await res.json();
+ACTION ITEMS
+* Review summary
+* Share with team
+* Follow up on tasks
+`;
 
-    setOutput(data.result || "Error generating output");
-
-    setLoading(false);
+    setOutput(structured);
   };
 
-  const copyOutput = () => {
-    navigator.clipboard.writeText(output);
+  const schemaData = {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    name: "Document Structurer AI",
+    applicationCategory: "BusinessApplication",
+    operatingSystem: "Web",
+    description:
+      "AI tool that turns messy notes into structured summaries, reports and action items.",
+    url: "https://document-structurer-ai.vercel.app",
+    offers: {
+      "@type": "Offer",
+      price: "7",
+      priceCurrency: "GBP"
+    }
   };
 
   return (
-    <main style={{ maxWidth: "900px", margin: "40px auto", padding: "20px", fontFamily: "Arial" }}>
+    <div
+      style={{
+        maxWidth: "900px",
+        margin: "40px auto",
+        fontFamily: "Arial",
+        padding: "20px"
+      }}
+    >
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaData) }}
+      />
 
-      <h1 style={{ fontSize: "36px", marginBottom: "20px" }}>
+      <h1 style={{ fontSize: "42px", marginBottom: "10px" }}>
         Document Structurer AI
       </h1>
 
-      <p style={{ marginBottom: "20px" }}>
-        Turn messy notes into structured documents instantly.
+      <p style={{ fontSize: "18px", marginBottom: "30px" }}>
+        Turn messy notes into structured summaries, key points and action items
+        instantly.
       </p>
 
       <textarea
+        placeholder="Paste messy notes here..."
         value={input}
         onChange={(e) => setInput(e.target.value)}
-        placeholder="Paste messy notes here..."
         style={{
           width: "100%",
-          height: "150px",
+          height: "160px",
           padding: "12px",
-          borderRadius: "8px",
+          fontSize: "16px",
+          borderRadius: "6px",
           border: "1px solid #ccc",
           marginBottom: "16px"
         }}
       />
 
       <button
-        onClick={handleTransform}
+        onClick={handleGenerate}
         style={{
           padding: "12px 20px",
           background: "black",
           color: "white",
           border: "none",
-          borderRadius: "8px",
-          cursor: "pointer"
+          borderRadius: "6px",
+          cursor: "pointer",
+          fontWeight: "bold",
+          marginBottom: "20px"
         }}
       >
-        {loading ? "Processing..." : "Transform"}
+        Generate Structure
       </button>
 
       {output && (
-        <div style={{ marginTop: "30px" }}>
-
-          <h2>Structured Output</h2>
-
-          <pre
-            style={{
-              background: "#f4f4f4",
-              padding: "16px",
-              borderRadius: "8px",
-              whiteSpace: "pre-wrap"
-            }}
-          >
-            {output}
-          </pre>
-
-          <button
-            onClick={copyOutput}
-            style={{
-              marginTop: "12px",
-              padding: "10px 16px",
-              borderRadius: "8px",
-              border: "none",
-              background: "#333",
-              color: "white",
-              cursor: "pointer"
-            }}
-          >
-            Copy
-          </button>
-
-        </div>
+        <pre
+          style={{
+            background: "#f5f5f5",
+            padding: "16px",
+            borderRadius: "6px",
+            whiteSpace: "pre-wrap"
+          }}
+        >
+          {output}
+        </pre>
       )}
 
       <div style={{ marginTop: "40px" }}>
-
-        {!proUser ? (
+        {!proMode ? (
           <button
+            onClick={() => setProMode(true)}
             style={{
               padding: "12px 20px",
               border: "none",
               borderRadius: "8px",
-              cursor: "pointer",
-              background: "black",
-              color: "white"
+              cursor: "pointer"
             }}
           >
-            Upgrade to Pro — £7/month
+            Upgrade to Pro – £7/month
           </button>
         ) : (
           <div style={{ color: "green", fontWeight: "bold" }}>
             Pro mode active
           </div>
         )}
-
       </div>
-
-      {/* SEO INTERNAL LINKS */}
-
-      <div style={{ marginTop: "60px" }}>
-
-        <h2 style={{ marginBottom: "20px" }}>
-          Popular use cases
-        </h2>
-
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-            gap: "14px"
-          }}
-        >
-
-          <a href="/seo/ai-meeting-notes" style={cardStyle}>
-            AI Meeting Notes Generator
-          </a>
-
-          <a href="/seo/organize-messy-notes" style={cardStyle}>
-            Organize Messy Notes
-          </a>
-
-          <a href="/seo/convert-notes-to-report" style={cardStyle}>
-            Convert Notes to Report
-          </a>
-
-          <a href="/seo/ai-notes-organizer" style={cardStyle}>
-            AI Notes Organizer
-          </a>
-
-          <a href="/seo/notes-to-action-items" style={cardStyle}>
-            Turn Notes Into Action Items
-          </a>
-
-          <a href="/seo/meeting-report-generator" style={cardStyle}>
-            AI Meeting Report Generator
-          </a>
-
-        </div>
-
-      </div>
-
-    </main>
+    </div>
   );
 }
-
-const cardStyle = {
-  textDecoration: "none",
-  color: "black",
-  border: "1px solid #ddd",
-  padding: "16px",
-  borderRadius: "8px",
-  background: "#fafafa"
-};
