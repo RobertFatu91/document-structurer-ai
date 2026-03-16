@@ -6,19 +6,19 @@ export async function generateMetadata({ params }) {
 
   if (!page) {
     return {
-      title: "Page Not Found"
+      title: "Page Not Found",
     };
   }
 
   return {
     title: page.title,
-    description: page.description
+    description: page.description,
   };
 }
 
 export async function generateStaticParams() {
   return Object.keys(seoPages).map((slug) => ({
-    slug
+    slug,
   }));
 }
 
@@ -66,7 +66,7 @@ export default function SeoPage({ params }) {
           padding: "14px 22px",
           borderRadius: "8px",
           textDecoration: "none",
-          fontWeight: "bold"
+          fontWeight: "bold",
         }}
       >
         Try Document Structurer AI
