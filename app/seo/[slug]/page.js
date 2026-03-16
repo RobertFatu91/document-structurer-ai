@@ -25,6 +25,29 @@ function buildPageData(slug) {
   };
 }
 
+function buildFaqData(slug) {
+  const titleText = slugToTitle(slug).toLowerCase();
+
+  return [
+    {
+      question: `What is ${titleText}?`,
+      answer: `${slugToTitle(slug)} is a use case for turning rough notes into a clearer structured format with summaries, key points and action items.`
+    },
+    {
+      question: `How can AI help with ${titleText}?`,
+      answer: `AI can organize messy notes, extract important information, create summaries and identify action items much faster than doing it manually.`
+    },
+    {
+      question: `Can I turn ${titleText} into a report?`,
+      answer: `Yes. Document Structurer AI can help convert rough notes into a structured report format that is easier to review and share.`
+    },
+    {
+      question: `Who is this useful for?`,
+      answer: `This is useful for founders, freelancers, consultants, contractors, managers and teams who need cleaner notes after meetings, calls or planning sessions.`
+    }
+  ];
+}
+
 export async function generateMetadata({ params }) {
   const { slug } = await params;
 
@@ -56,17 +79,31 @@ export default async function SeoPage({ params }) {
   }
 
   const page = buildPageData(slug);
+  const faqItems = buildFaqData(slug);
 
   const relatedPages = seoKeywords
     .filter((item) => item !== slug)
     .slice(0, 6);
 
-  const schemaData = {
+  const webPageSchema = {
     "@context": "https://schema.org",
     "@type": "WebPage",
     name: page.heading,
     description: page.description,
     url: `https://document-structurer-ai.vercel.app/seo/${slug}`
+  };
+
+  const faqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faqItems.map((item) => ({
+      "@type": "Question",
+      name: item.question,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: item.answer
+      }
+    }))
   };
 
   return (
@@ -80,7 +117,11 @@ export default async function SeoPage({ params }) {
     >
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaData) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(webPageSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
       />
 
       <h1 style={{ fontSize: "38px", marginBottom: "20px" }}>
@@ -131,6 +172,30 @@ export default async function SeoPage({ params }) {
       >
         Try Document Structurer AI
       </a>
+
+      <h2 style={{ marginBottom: "14px" }}>Frequently asked questions</h2>
+
+      <div style={{ marginBottom: "40px" }}>
+        {faqItems.map((item, index) => (
+          <div
+            key={index}
+            style={{
+              border: "1px solid #ddd",
+              borderRadius: "8px",
+              padding: "16px",
+              marginBottom: "12px",
+              background: "#fafafa"
+            }}
+          >
+            <h3 style={{ marginTop: 0, marginBottom: "8px", fontSize: "18px" }}>
+              {item.question}
+            </h3>
+            <p style={{ margin: 0, lineHeight: "1.6", color: "#333" }}>
+              {item.answer}
+            </p>
+          </div>
+        ))}
+      </div>
 
       <h2 style={{ marginBottom: "14px" }}>Related pages</h2>
 
