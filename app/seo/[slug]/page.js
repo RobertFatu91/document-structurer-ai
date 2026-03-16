@@ -15,12 +15,12 @@ function buildPageData(slug) {
     title: `${titleText} | Document Structurer AI`,
     description: `Use Document Structurer AI for ${titleText.toLowerCase()}. Turn messy notes into structured summaries, reports and action items.`,
     heading: titleText,
-    intro: `Document Structurer AI helps with ${titleText.toLowerCase()} by turning rough, messy notes into structured summaries, key points and action items in seconds.`,
+    intro: `Document Structurer AI helps with ${titleText.toLowerCase()} by turning rough notes into structured summaries, key points and action items.`,
     benefits: [
       `Improves ${titleText.toLowerCase()}`,
       "Turns messy notes into clearer structure",
       "Creates summaries and action items",
-      "Saves time after meetings, calls and planning"
+      "Saves time after meetings and calls"
     ]
   };
 }
@@ -31,38 +31,21 @@ function buildFaqData(slug) {
   return [
     {
       question: `What is ${titleText}?`,
-      answer: `${slugToTitle(slug)} is a use case for turning rough notes into a clearer structured format with summaries, key points and action items.`
+      answer: `${slugToTitle(slug)} helps organize messy notes into summaries, key points and action items.`
     },
     {
-      question: `How can AI help with ${titleText}?`,
-      answer: `AI can organize messy notes, extract important information, create summaries and identify action items much faster than doing it manually.`
+      question: `How does AI organize notes?`,
+      answer: `AI analyzes raw text, detects important information and structures it into clear sections and summaries.`
     },
     {
-      question: `Can I turn ${titleText} into a report?`,
-      answer: `Yes. Document Structurer AI can help convert rough notes into a structured report format that is easier to review and share.`
+      question: `Can AI convert notes into reports?`,
+      answer: `Yes. AI can convert messy notes into structured reports, summaries and follow-up tasks.`
     },
     {
-      question: `Who is this useful for?`,
-      answer: `This is useful for founders, freelancers, consultants, contractors, managers and teams who need cleaner notes after meetings, calls or planning sessions.`
+      question: `Who can use this tool?`,
+      answer: `Founders, freelancers, consultants, students and teams who want to organize notes quickly.`
     }
   ];
-}
-
-export async function generateMetadata({ params }) {
-  const { slug } = await params;
-
-  if (!seoKeywords.includes(slug)) {
-    return {
-      title: "Page Not Found"
-    };
-  }
-
-  const page = buildPageData(slug);
-
-  return {
-    title: page.title,
-    description: page.description
-  };
 }
 
 export async function generateStaticParams() {
@@ -109,22 +92,24 @@ export default async function SeoPage({ params }) {
   return (
     <div
       style={{
-        maxWidth: "850px",
+        maxWidth: "900px",
         margin: "40px auto",
         padding: "20px",
         fontFamily: "Arial"
       }}
     >
+
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(webPageSchema) }}
       />
+
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
       />
 
-      <h1 style={{ fontSize: "38px", marginBottom: "20px" }}>
+      <h1 style={{ fontSize: "40px", marginBottom: "16px" }}>
         {page.heading}
       </h1>
 
@@ -132,30 +117,13 @@ export default async function SeoPage({ params }) {
         {page.intro}
       </p>
 
-      <h2 style={{ marginBottom: "12px" }}>What this tool helps with</h2>
+      <h2>Benefits</h2>
 
-      <ul style={{ lineHeight: "1.8", marginBottom: "28px" }}>
-        {page.benefits.map((benefit, index) => (
-          <li key={index}>{benefit}</li>
+      <ul style={{ lineHeight: "1.8", marginBottom: "30px" }}>
+        {page.benefits.map((b, i) => (
+          <li key={i}>{b}</li>
         ))}
       </ul>
-
-      <h2 style={{ marginBottom: "12px" }}>How it works</h2>
-
-      <p style={{ lineHeight: "1.7", marginBottom: "24px" }}>
-        Paste your messy notes into Document Structurer AI and the tool will
-        organize them into a clean structured output. Depending on your content,
-        it can generate summaries, key points, action items and clearer report
-        sections.
-      </p>
-
-      <h2 style={{ marginBottom: "12px" }}>Who it is for</h2>
-
-      <p style={{ lineHeight: "1.7", marginBottom: "28px" }}>
-        This tool is useful for founders, freelancers, consultants, contractors
-        and anyone who deals with messy notes from meetings, brainstorming
-        sessions or planning calls.
-      </p>
 
       <a
         href="/"
@@ -173,31 +141,59 @@ export default async function SeoPage({ params }) {
         Try Document Structurer AI
       </a>
 
-      <h2 style={{ marginBottom: "14px" }}>Frequently asked questions</h2>
+      <h2 style={{ marginBottom: "16px" }}>
+        Frequently Asked Questions
+      </h2>
 
-      <div style={{ marginBottom: "40px" }}>
-        {faqItems.map((item, index) => (
-          <div
-            key={index}
+      {faqItems.map((item, i) => (
+        <div
+          key={i}
+          style={{
+            border: "1px solid #ddd",
+            padding: "16px",
+            borderRadius: "8px",
+            marginBottom: "12px",
+            background: "#fafafa"
+          }}
+        >
+          <h3>{item.question}</h3>
+          <p>{item.answer}</p>
+        </div>
+      ))}
+
+      <h2 style={{ marginTop: "40px" }}>
+        Related Pages
+      </h2>
+
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+          gap: "12px",
+          marginBottom: "40px"
+        }}
+      >
+        {relatedPages.map((slug) => (
+          <a
+            key={slug}
+            href={`/seo/${slug}`}
             style={{
               border: "1px solid #ddd",
+              padding: "12px",
               borderRadius: "8px",
-              padding: "16px",
-              marginBottom: "12px",
+              textDecoration: "none",
+              color: "black",
               background: "#fafafa"
             }}
           >
-            <h3 style={{ marginTop: 0, marginBottom: "8px", fontSize: "18px" }}>
-              {item.question}
-            </h3>
-            <p style={{ margin: 0, lineHeight: "1.6", color: "#333" }}>
-              {item.answer}
-            </p>
-          </div>
+            {slugToTitle(slug)}
+          </a>
         ))}
       </div>
 
-      <h2 style={{ marginBottom: "14px" }}>Related pages</h2>
+      <h2>
+        Popular AI Note Tools
+      </h2>
 
       <div
         style={{
@@ -206,23 +202,22 @@ export default async function SeoPage({ params }) {
           gap: "12px"
         }}
       >
-        {relatedPages.map((relatedSlug) => (
-          <a
-            key={relatedSlug}
-            href={`/seo/${relatedSlug}`}
-            style={{
-              textDecoration: "none",
-              color: "black",
-              border: "1px solid #ddd",
-              padding: "14px",
-              borderRadius: "8px",
-              background: "#fafafa"
-            }}
-          >
-            {slugToTitle(relatedSlug)}
-          </a>
-        ))}
+
+        <a href="/seo/ai-meeting-notes">AI Meeting Notes</a>
+        <a href="/seo/meeting-notes-summary">Meeting Notes Summary</a>
+        <a href="/seo/meeting-notes-organizer">Meeting Notes Organizer</a>
+        <a href="/seo/organize-messy-notes">Organize Messy Notes</a>
+        <a href="/seo/notes-to-report">Notes To Report</a>
+        <a href="/seo/notes-to-action-items">Notes To Action Items</a>
+        <a href="/seo/call-notes-summary">Call Notes Summary</a>
+        <a href="/seo/client-call-notes">Client Call Notes</a>
+        <a href="/seo/project-notes-summary">Project Notes Summary</a>
+        <a href="/seo/lecture-notes-organizer">Lecture Notes Organizer</a>
+        <a href="/seo/ai-notes-organizer">AI Notes Organizer</a>
+        <a href="/seo/notes-cleanup-tool">Notes Cleanup Tool</a>
+
       </div>
+
     </div>
   );
 }
