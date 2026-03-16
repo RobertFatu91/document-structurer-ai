@@ -1,30 +1,35 @@
-import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+import Script from "next/script";
 
 export const metadata = {
   title: "Document Structurer AI",
-  description: "Turn messy notes into clear structured reports in seconds. Perfect for meetings, brainstorming and raw ideas.",
-  verification: {
-    google: "VakcKCusPVDcSv1kaFjrMZhWJjiMZRyp3zBm1C0wJtI"
-  }
+  description: "Turn messy notes into structured summaries instantly."
 };
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable}`}>
+      <head>
+
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-WZ5ZDMX4DW"
+          strategy="afterInteractive"
+        />
+
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-WZ5ZDMX4DW');
+          `}
+        </Script>
+
+      </head>
+
+      <body>
         {children}
       </body>
+
     </html>
   );
 }
