@@ -2,6 +2,8 @@
 
 import { useMemo, useState } from "react";
 import { seoKeywords } from "../data/seoKeywords";
+import jsPDF from "jspdf";
+import { Document, Packer, Paragraph } from "docx";
 
 function slugToTitle(slug) {
   return slug
@@ -37,8 +39,60 @@ ACTION ITEMS
 * Follow up on tasks
 `;
 
-    setOutput(structured);
+    setOutput(structured.trim());
   };
+
+  function copyToClipboard() {
+    if (!output) return;
+    navigator.clipboard.writeText(output);
+    alert("Copied to clipboard");
+  }
+
+  function downloadTXT() {
+    if (!output) return;
+
+    const fileBlob = new Blob([output], { type: "text/plain" });
+    const element = document.createElement("a");
+    element.href = URL.createObjectURL(fileBlob);
+    element.download = "structured.txt";
+    document.body.appendChild(element);
+    element.click();
+    document.body.removeChild(element);
+  }
+
+  function downloadPDF() {
+    if (!output) return;
+
+    const doc = new jsPDF();
+    const lines = doc.splitTextToSize(output, 180);
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(12);
+    doc.text(lines, 15, 20);
+    doc.save("structured-document.pdf");
+  }
+
+  async function downloadDocx() {
+    if (!output) return;
+
+    const lines = output.split("\n");
+
+    const doc = new Document({
+      sections: [
+        {
+          children: lines.map((line) => new Paragraph(line))
+        }
+      ]
+    });
+
+    const blob = await Packer.toBlob(doc);
+    const element = document.createElement("a");
+    element.href = URL.createObjectURL(blob);
+    element.download = "structured-document.docx";
+    document.body.appendChild(element);
+    element.click();
+    document.body.removeChild(element);
+  }
 
   const schemaData = {
     "@context": "https://schema.org",
@@ -110,16 +164,57 @@ ACTION ITEMS
       </button>
 
       {output && (
-        <pre
-          style={{
-            background: "#f5f5f5",
-            padding: "16px",
-            borderRadius: "6px",
-            whiteSpace: "pre-wrap"
-          }}
-        >
-          {output}
-        </pre>
+        <div style={{ marginTop: "20px" }}>
+          <h2 style={{ marginBottom: "12px" }}>Structured Output</h2>
+
+          <pre
+            style={{
+              background: "#f5f5f5",
+              padding: "16px",
+              borderRadius: "6px",
+              whiteSpace: "pre-wrap",
+              marginBottom: "16px"
+            }}
+          >
+            {output}
+          </pre>
+
+          <div
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+              gap: "10px"
+            }}
+          >
+            <button
+              onClick={copyToClipboard}
+              style={actionButtonStyle}
+            >
+              Copy
+            </button>
+
+            <button
+              onClick={downloadTXT}
+              style={actionButtonStyle}
+            >
+              Download TXT
+            </button>
+
+            <button
+              onClick={downloadPDF}
+              style={actionButtonStyle}
+            >
+              Download PDF
+            </button>
+
+            <button
+              onClick={downloadDocx}
+              style={actionButtonStyle}
+            >
+              Download Word
+            </button>
+          </div>
+        </div>
       )}
 
       <div style={{ marginTop: "40px" }}>
@@ -130,7 +225,8 @@ ACTION ITEMS
               padding: "12px 20px",
               border: "none",
               borderRadius: "8px",
-              cursor: "pointer"
+              cursor: "pointer",
+              background: "#f2f2f2"
             }}
           >
             Upgrade to Pro – £7/month
@@ -178,3 +274,12 @@ ACTION ITEMS
     </div>
   );
 }
+
+const actionButtonStyle = {
+  padding: "10px 16px",
+  border: "none",
+  borderRadius: "8px",
+  cursor: "pointer",
+  background: "black",
+  color: "white"
+};
