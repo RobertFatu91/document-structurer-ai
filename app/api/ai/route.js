@@ -1,99 +1,97 @@
-import OpenAI from "openai"
+import OpenAI from "openai";
 
-const client = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
-})
-
-function getSystemPrompt(mode) {
-  if (mode === "tasks") {
-    return `
-You are a task organization assistant.
-
-Turn the text into a clean task list.
-
-Rules:
-- Use bullet points
-- Improve grammar
-- Keep tasks short and clear
-`
-  }
-
-  if (mode === "email") {
-    return `
-You are a professional email assistant.
-
-Turn the text into a polished professional email.
-
-Rules:
-- Add a clear subject line
-- Use professional tone
-- Keep the meaning the same
-`
-  }
-
-  if (mode === "summary") {
-    return `
-You are a summarization assistant.
-
-Turn the text into a structured summary.
-
-Use these sections:
-Summary
-Key Points
-Next Steps
-
-Rules:
-- Be concise
-- Use bullet points where useful
-`
-  }
-
-  return `
-You are a professional meeting notes assistant.
-
-Convert the text into a structured meeting report using the following sections:
-
-Summary
-Key Points
-Action Items
-Deadlines
-Decisions
-
-Rules:
-- Keep everything clear and concise
-- Use bullet points
-- If a section has no information write "None"
-`
-}
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
 
 export async function POST(req) {
   try {
-    const body = await req.json()
-    const text = body.text
-    const mode = body.mode || "meeting"
+    const { type, content } = await req.json();
 
-    const completion = await client.chat.completions.create({
-      model: "gpt-4o-mini",
+    let systemPrompt = "";
+
+    if (type === "email-summary") {
+      systemPrompt = `
+You are a professional assistant.
+Summarize emails clearly.
+
+Return format:
+
+SUMMARY
+...
+
+KEY POINTS
+- ...
+- ...
+
+ACTION ITEMS
+- ...
+`;
+    } else if (type === "email-reply") {
+      systemPrompt = `
+You are a professional assistant.
+
+Write a clean, short and professional email reply.
+
+Keep it human, not robotic.
+`;
+    } else if (type === "notes") {
+      systemPrompt = `
+Turn messy notes into structured output.
+
+Format:
+
+SUMMARY
+...
+
+KEY POINTS
+...
+
+ACTION ITEMS
+...
+`;
+    } else if (type === "meeting") {
+      systemPrompt = `
+You are a professional meeting assistant.
+
+Summarize the meeting clearly.
+
+Return format:
+
+SUMMARY
+...
+
+KEY DECISIONS
+- ...
+- ...
+
+ACTION ITEMS
+- ...
+- ...
+`;
+    } else {
+      systemPrompt = `
+You are a professional assistant.
+Summarize clearly and structure the response well.
+`;
+    }
+
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4.1-mini",
       messages: [
-        {
-          role: "system",
-          content: getSystemPrompt(mode)
-        },
-        {
-          role: "user",
-          content: text
-        }
-      ]
-    })
+        { role: "system", content: systemPrompt },
+        { role: "user", content },
+      ],
+    });
 
     return Response.json({
-      result: completion.choices[0].message.content
-    })
+      result: completion.choices[0].message.content,
+    });
   } catch (error) {
-    console.error(error)
-
-    return Response.json({
-      error: "AI processing error"
-    })
+    console.error("AI ERROR:", error);
+    return Response.json(
+      { error: error.message || "AI failed" },
+      { status: 500 }
+    );
   }
 }

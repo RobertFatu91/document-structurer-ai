@@ -1,179 +1,989 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { seoKeywords } from "../data/seoKeywords";
-import jsPDF from "jspdf";
-import { Document, Packer, Paragraph } from "docx";
-
-function slugToTitle(slug) {
-  return slug
-    .split("-")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(" ");
-}
+import { useEffect, useMemo, useState } from "react";
+import { signIn, signOut, useSession } from "next-auth/react";
 
 export default function Home() {
+  const { data: session, status } = useSession();
+
   const [input, setInput] = useState("");
   const [output, setOutput] = useState("");
+  const [mode, setMode] = useState("notes");
+  const [savingToNotion, setSavingToNotion] = useState(false);
   const [proMode, setProMode] = useState(false);
 
-  const featuredSeoPages = useMemo(() => {
-    return seoKeywords.slice(0, 12);
+  const [plan, setPlan] = useState("free");
+  const [usageCount, setUsageCount] = useState(0);
+
+  const [emails, setEmails] = useState([]);
+  const [selectedEmail, setSelectedEmail] = useState(null);
+  const [loadingEmails, setLoadingEmails] = useState(false);
+
+  const [events, setEvents] = useState([]);
+  const [selectedEvent, setSelectedEvent] = useState(null);
+  const [loadingEvents, setLoadingEvents] = useState(false);
+
+  const [loadingAI, setLoadingAI] = useState(false);
+
+  useEffect(() => {
+    const savedUsage = localStorage.getItem("usageCount");
+    if (savedUsage) {
+      setUsageCount(Number(savedUsage));
+    }
   }, []);
 
-  const handleGenerate = () => {
-    if (!input.trim()) return;
+  const selectedEmailDisplay = useMemo(() => {
+    if (!selectedEmail) return "";
 
-    const structured = `
+    return `EMAIL THREAD ANALYSIS
+
+CONTEXT
+You are analyzing an email conversation. Extract the most important information.
+
+EMAIL DETAILS
+From: ${selectedEmail.from}
+Date: ${selectedEmail.date}
+Subject: ${selectedEmail.subject}
+
+CONTENT
+${selectedEmail.body || selectedEmail.snippet || ""}
+
+TASK
+- Summarize clearly
+- Extract key points
+- Identify required actions
+- Highlight urgency if any
+
+OUTPUT FORMAT
+
 SUMMARY
-${input.slice(0, 120)}...
+...
 
 KEY POINTS
-* Main topic identified
-* Important information extracted
-* Notes structured into sections
+- ...
 
 ACTION ITEMS
-* Review summary
-* Share with team
-* Follow up on tasks
+- ...
 `;
+  }, [selectedEmail]);
 
-    setOutput(structured.trim());
-  };
+  const selectedEventDisplay = useMemo(() => {
+    if (!selectedEvent) return "";
 
-  function copyToClipboard() {
-    if (!output) return;
-    navigator.clipboard.writeText(output);
-    alert("Copied to clipboard");
-  }
+    return `MEETING ANALYSIS
 
-  function downloadTXT() {
-    if (!output) return;
+CONTEXT
+You are analyzing a meeting. Extract decisions and actions.
 
-    const fileBlob = new Blob([output], { type: "text/plain" });
-    const element = document.createElement("a");
-    element.href = URL.createObjectURL(fileBlob);
-    element.download = "structured.txt";
-    document.body.appendChild(element);
-    element.click();
-    document.body.removeChild(element);
-  }
+MEETING DETAILS
+Title: ${selectedEvent.summary}
+Start: ${selectedEvent.start}
+End: ${selectedEvent.end}
+Location: ${selectedEvent.location || "N/A"}
 
-  function downloadPDF() {
-    if (!output) return;
+DESCRIPTION
+${selectedEvent.description || "No description"}
 
-    const doc = new jsPDF();
-    const lines = doc.splitTextToSize(output, 180);
+TASK
+- Summarize discussion
+- Extract decisions
+- Identify action items
+- Highlight responsibilities
 
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(12);
-    doc.text(lines, 15, 20);
-    doc.save("structured-document.pdf");
-  }
+OUTPUT FORMAT
 
-  async function downloadDocx() {
-    if (!output) return;
+SUMMARY
+...
 
-    const lines = output.split("\n");
+KEY DECISIONS
+- ...
 
-    const doc = new Document({
-      sections: [
-        {
-          children: lines.map((line) => new Paragraph(line))
-        }
-      ]
-    });
+ACTION ITEMS
+- ...
+`;
+  }, [selectedEvent]);
 
-    const blob = await Packer.toBlob(doc);
-    const element = document.createElement("a");
-    element.href = URL.createObjectURL(blob);
-    element.download = "structured-document.docx";
-    document.body.appendChild(element);
-    element.click();
-    document.body.removeChild(element);
-  }
+  const handleGenerate = async () => {
+    if (!input.trim()) return;
 
-  const schemaData = {
-    "@context": "https://schema.org",
-    "@type": "SoftwareApplication",
-    name: "Document Structurer AI",
-    applicationCategory: "BusinessApplication",
-    operatingSystem: "Web",
-    description:
-      "AI tool that turns messy notes into structured summaries, reports and action items.",
-    url: "https://document-structurer-ai.vercel.app",
-    offers: {
-      "@type": "Offer",
-      price: "7",
-      priceCurrency: "GBP"
+    if (plan === "free" && usageCount >= 3) {
+      alert("You have used all 3 free transformations. Upgrade to continue.");
+      return;
+    }
+
+    try {
+      setLoadingAI(true);
+
+      const res = await fetch("/api/ai", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          type: mode,
+          content: input,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || "AI failed");
+      }
+
+      setOutput(data.result);
+
+      if (plan === "free") {
+        setUsageCount((prev) => {
+          const newCount = prev + 1;
+          localStorage.setItem("usageCount", String(newCount));
+          return newCount;
+        });
+      }
+    } catch (error) {
+      console.error(error);
+      alert(error.message || "AI failed");
+    } finally {
+      setLoadingAI(false);
     }
   };
+
+  const handleSummarizeSelectedEmail = async () => {
+    if (!selectedEmail) return;
+
+    if (plan !== "ultra") {
+      alert("Email tools are available only on the ULTRA plan.");
+      return;
+    }
+
+    try {
+      setLoadingAI(true);
+
+      const res = await fetch("/api/ai", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          type: "email-summary",
+          content: selectedEmail.body || selectedEmail.snippet || "",
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || "AI failed");
+      }
+
+      setMode("email");
+      setInput(selectedEmail.body || selectedEmail.snippet || "");
+      setOutput(data.result);
+    } catch (error) {
+      console.error(error);
+      alert(error.message || "AI failed");
+    } finally {
+      setLoadingAI(false);
+    }
+  };
+
+  const handleGenerateReply = async () => {
+    if (!selectedEmail) return;
+
+    if (plan !== "ultra") {
+      alert("Email tools are available only on the ULTRA plan.");
+      return;
+    }
+
+    try {
+      setLoadingAI(true);
+
+      const res = await fetch("/api/ai", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          type: "email-reply",
+          content: selectedEmail.body || selectedEmail.snippet || "",
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || "AI failed");
+      }
+
+      setMode("email");
+      setInput(selectedEmail.body || selectedEmail.snippet || "");
+      setOutput(data.result);
+    } catch (error) {
+      console.error(error);
+      alert(error.message || "AI failed");
+    } finally {
+      setLoadingAI(false);
+    }
+  };
+
+  const handleSummarizeSelectedEvent = async () => {
+    if (!selectedEvent) return;
+
+    if (plan !== "ultra") {
+      alert("Calendar tools are available only on the ULTRA plan.");
+      return;
+    }
+
+    try {
+      setLoadingAI(true);
+
+      const content = `MEETING TITLE
+${selectedEvent.summary}
+
+START
+${selectedEvent.start}
+
+END
+${selectedEvent.end}
+
+LOCATION
+${selectedEvent.location || "No location"}
+
+DESCRIPTION
+${selectedEvent.description || "No description"}`;
+
+      const res = await fetch("/api/ai", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          type: "meeting",
+          content,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || "AI failed");
+      }
+
+      setMode("meeting");
+      setInput(content);
+      setOutput(data.result);
+    } catch (error) {
+      console.error(error);
+      alert(error.message || "AI failed");
+    } finally {
+      setLoadingAI(false);
+    }
+  };
+
+  const handleCopy = async () => {
+    if (!output) return;
+    await navigator.clipboard.writeText(output);
+    alert("Copied!");
+  };
+
+  const handleExportTxt = () => {
+    if (!output) return;
+    const blob = new Blob([output], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "ai-output.txt";
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleExportWord = () => {
+    if (!output) return;
+    const blob = new Blob([output], { type: "application/msword" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "ai-output.doc";
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleSaveToNotion = async () => {
+    if (!output) return;
+
+    try {
+      setSavingToNotion(true);
+
+      const res = await fetch("/api/notion", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          content: output,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        throw new Error(data.message || "Failed to save to Notion");
+      }
+
+      alert("Saved to Notion successfully!");
+    } catch (error) {
+      console.error(error);
+      alert(error.message || "Notion save failed");
+    } finally {
+      setSavingToNotion(false);
+    }
+  };
+
+  const handleFetchEmails = async () => {
+    if (plan !== "ultra") {
+      alert("Gmail integration is available only on the ULTRA plan.");
+      return;
+    }
+
+    try {
+      setLoadingEmails(true);
+
+      const res = await fetch("/api/gmail");
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to fetch emails");
+      }
+
+      setEmails(data.emails || []);
+
+      if (data.emails?.length) {
+        setSelectedEmail(data.emails[0]);
+      } else {
+        setSelectedEmail(null);
+      }
+    } catch (error) {
+      console.error(error);
+      alert(error.message || "Failed to fetch emails");
+    } finally {
+      setLoadingEmails(false);
+    }
+  };
+
+  const handleFetchEvents = async () => {
+    if (plan !== "ultra") {
+      alert("Calendar integration is available only on the ULTRA plan.");
+      return;
+    }
+
+    try {
+      setLoadingEvents(true);
+
+      const res = await fetch("/api/calendar");
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to fetch calendar events");
+      }
+
+      setEvents(data.events || []);
+
+      if (data.events?.length) {
+        setSelectedEvent(data.events[0]);
+      } else {
+        setSelectedEvent(null);
+      }
+    } catch (error) {
+      console.error(error);
+      alert(error.message || "Failed to fetch calendar events");
+    } finally {
+      setLoadingEvents(false);
+    }
+  };
+
+  const tabButton = (active) => ({
+    padding: "10px 16px",
+    borderRadius: "8px",
+    border: active ? "1px solid black" : "1px solid #ddd",
+    background: active ? "black" : "white",
+    color: active ? "white" : "black",
+    cursor: "pointer",
+    fontWeight: "bold",
+  });
+
+  const actionButton = {
+    padding: "10px 16px",
+    borderRadius: "8px",
+    border: "1px solid #ddd",
+    background: "white",
+    cursor: "pointer",
+    fontWeight: "bold",
+  };
+
+  const cardStyle = (active) => ({
+    border: active ? "1px solid black" : "1px solid #e5e5e5",
+    borderRadius: "10px",
+    padding: "12px",
+    background: active ? "#f7f7f7" : "white",
+    cursor: "pointer",
+  });
 
   return (
     <div
       style={{
-        maxWidth: "900px",
+        maxWidth: "1300px",
         margin: "40px auto",
         fontFamily: "Arial",
-        padding: "20px"
+        padding: "20px",
       }}
     >
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaData) }}
-      />
+      <div
+        style={{
+          marginBottom: "20px",
+          display: "flex",
+          gap: "10px",
+          alignItems: "center",
+          flexWrap: "wrap",
+          justifyContent: "space-between",
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            gap: "10px",
+            alignItems: "center",
+            flexWrap: "wrap",
+          }}
+        >
+          {status === "loading" ? (
+            <div>Checking login...</div>
+          ) : session ? (
+            <>
+              <div style={{ fontWeight: "bold" }}>
+                Connected as {session.user?.email}
+              </div>
+              <button
+                onClick={() => signOut()}
+                style={{
+                  padding: "12px 20px",
+                  background: "#111",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "8px",
+                  cursor: "pointer",
+                  fontWeight: "bold",
+                }}
+              >
+                Logout
+              </button>
+            </>
+          ) : (
+            <button
+              onClick={() => signIn("google")}
+              style={{
+                padding: "12px 20px",
+                background: "#4285F4",
+                color: "white",
+                border: "none",
+                borderRadius: "8px",
+                cursor: "pointer",
+                fontWeight: "bold",
+              }}
+            >
+              Connect Google
+            </button>
+          )}
+        </div>
+
+        <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+          <button
+            onClick={handleFetchEmails}
+            style={{
+              padding: "12px 20px",
+              background: "#4285F4",
+              color: "white",
+              border: "none",
+              borderRadius: "8px",
+              cursor: "pointer",
+              fontWeight: "bold",
+            }}
+          >
+            {loadingEmails ? "Fetching Emails..." : "Fetch Emails"}
+          </button>
+
+          <button
+            onClick={handleFetchEvents}
+            style={{
+              padding: "12px 20px",
+              background: "#0f766e",
+              color: "white",
+              border: "none",
+              borderRadius: "8px",
+              cursor: "pointer",
+              fontWeight: "bold",
+            }}
+          >
+            {loadingEvents ? "Fetching Meetings..." : "Fetch Meetings"}
+          </button>
+        </div>
+      </div>
+
+      <div
+        style={{
+          marginBottom: "20px",
+          display: "flex",
+          gap: "10px",
+          flexWrap: "wrap",
+          alignItems: "center",
+        }}
+      >
+        <div style={{ fontWeight: "bold" }}>
+          Current Plan: {plan.toUpperCase()}
+        </div>
+
+        <button
+          onClick={() => setPlan("free")}
+          style={{
+            padding: "10px 14px",
+            borderRadius: "8px",
+            border: "1px solid #ddd",
+            background: plan === "free" ? "black" : "white",
+            color: plan === "free" ? "white" : "black",
+            cursor: "pointer",
+            fontWeight: "bold",
+          }}
+        >
+          FREE
+        </button>
+
+        <button
+          onClick={() => setPlan("pro")}
+          style={{
+            padding: "10px 14px",
+            borderRadius: "8px",
+            border: "1px solid #ddd",
+            background: plan === "pro" ? "black" : "white",
+            color: plan === "pro" ? "white" : "black",
+            cursor: "pointer",
+            fontWeight: "bold",
+          }}
+        >
+          PRO
+        </button>
+
+        <button
+          onClick={() => setPlan("ultra")}
+          style={{
+            padding: "10px 14px",
+            borderRadius: "8px",
+            border: "1px solid #ddd",
+            background: plan === "ultra" ? "black" : "white",
+            color: plan === "ultra" ? "white" : "black",
+            cursor: "pointer",
+            fontWeight: "bold",
+          }}
+        >
+          ULTRA
+        </button>
+
+        <div style={{ color: "#555" }}>
+          Free uses left: {Math.max(0, 3 - usageCount)}
+        </div>
+      </div>
 
       <h1 style={{ fontSize: "42px", marginBottom: "10px" }}>
-        Document Structurer AI
+        AI Notes, Email & Meeting Assistant
       </h1>
 
-      <p style={{ fontSize: "18px", marginBottom: "30px" }}>
-        Turn messy notes into structured summaries, key points and action items instantly.
+      <p style={{ fontSize: "18px", marginBottom: "24px" }}>
+        Turn messy notes, email threads and meeting discussions into structured
+        summaries, key points and action items instantly.
       </p>
 
+      <a
+        href="/integrations"
+        style={{
+          display: "inline-block",
+          marginBottom: "24px",
+          color: "black",
+          fontWeight: "bold",
+          textDecoration: "none",
+        }}
+      >
+        Manage Integrations and Automations →
+      </a>
+
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "1fr 1fr",
+          gap: "20px",
+          marginBottom: "20px",
+        }}
+      >
+        <div
+          style={{
+            border: "1px solid #e5e5e5",
+            borderRadius: "12px",
+            padding: "16px",
+            minHeight: "420px",
+          }}
+        >
+          <h2 style={{ marginTop: 0, marginBottom: "12px" }}>Inbox</h2>
+
+          {!emails.length ? (
+            <div style={{ color: "#666" }}>
+              No emails loaded yet. Click Fetch Emails.
+            </div>
+          ) : (
+            <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+              {emails.map((email) => (
+                <div
+                  key={email.id}
+                  style={cardStyle(selectedEmail?.id === email.id)}
+                  onClick={() => {
+                    setSelectedEmail(email);
+                    setMode("email");
+                    setInput(email.body || email.snippet || "");
+                  }}
+                >
+                  <div style={{ fontWeight: "bold", fontSize: "14px", marginBottom: "6px" }}>
+                    {email.subject}
+                  </div>
+                  <div style={{ fontSize: "13px", color: "#555", marginBottom: "6px" }}>
+                    {email.from}
+                  </div>
+                  <div style={{ fontSize: "12px", color: "#777", marginBottom: "8px" }}>
+                    {email.date}
+                  </div>
+                  <div style={{ fontSize: "13px", color: "#333" }}>
+                    {email.snippet}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div
+          style={{
+            border: "1px solid #e5e5e5",
+            borderRadius: "12px",
+            padding: "16px",
+            minHeight: "420px",
+          }}
+        >
+          <h2 style={{ marginTop: 0, marginBottom: "12px" }}>Calendar</h2>
+
+          {!events.length ? (
+            <div style={{ color: "#666" }}>
+              No meetings loaded yet. Click Fetch Meetings.
+            </div>
+          ) : (
+            <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+              {events.map((event) => (
+                <div
+                  key={event.id}
+                  style={cardStyle(selectedEvent?.id === event.id)}
+                  onClick={() => {
+                    setSelectedEvent(event);
+                    setMode("meeting");
+                    setInput(
+                      `MEETING TITLE
+${event.summary}
+
+START
+${event.start}
+
+END
+${event.end}
+
+LOCATION
+${event.location || "No location"}
+
+DESCRIPTION
+${event.description || "No description"}`
+                    );
+                  }}
+                >
+                  <div style={{ fontWeight: "bold", fontSize: "14px", marginBottom: "6px" }}>
+                    {event.summary}
+                  </div>
+                  <div style={{ fontSize: "12px", color: "#777", marginBottom: "6px" }}>
+                    {event.start}
+                  </div>
+                  <div style={{ fontSize: "13px", color: "#555" }}>
+                    {event.location || "No location"}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "1fr 1fr",
+          gap: "20px",
+          marginBottom: "30px",
+        }}
+      >
+        <div
+          style={{
+            border: "1px solid #e5e5e5",
+            borderRadius: "12px",
+            padding: "16px",
+            minHeight: "420px",
+          }}
+        >
+          <h2 style={{ marginTop: 0, marginBottom: "12px" }}>Selected Email</h2>
+
+          {!selectedEmail ? (
+            <div style={{ color: "#666" }}>
+              Select an email from the inbox to view details.
+            </div>
+          ) : (
+            <>
+              <div style={{ marginBottom: "10px", fontWeight: "bold", fontSize: "20px" }}>
+                {selectedEmail.subject}
+              </div>
+
+              <div style={{ marginBottom: "6px", color: "#444" }}>
+                <strong>From:</strong> {selectedEmail.from}
+              </div>
+
+              <div style={{ marginBottom: "14px", color: "#444" }}>
+                <strong>Date:</strong> {selectedEmail.date}
+              </div>
+
+              <div
+                style={{
+                  whiteSpace: "pre-wrap",
+                  lineHeight: "1.6",
+                  background: "#fafafa",
+                  borderRadius: "10px",
+                  padding: "14px",
+                  minHeight: "220px",
+                  marginBottom: "16px",
+                }}
+              >
+                {selectedEmail.body || selectedEmail.snippet || "No content"}
+              </div>
+
+              <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+                <button
+                  onClick={handleSummarizeSelectedEmail}
+                  style={{
+                    padding: "12px 18px",
+                    background: "black",
+                    color: "white",
+                    border: "none",
+                    borderRadius: "8px",
+                    cursor: "pointer",
+                    fontWeight: "bold",
+                  }}
+                >
+                  {loadingAI ? "Working..." : "Summarize Email"}
+                </button>
+
+                <button
+                  onClick={handleGenerateReply}
+                  style={{
+                    padding: "12px 18px",
+                    background: "#4285F4",
+                    color: "white",
+                    border: "none",
+                    borderRadius: "8px",
+                    cursor: "pointer",
+                    fontWeight: "bold",
+                  }}
+                >
+                  {loadingAI ? "Working..." : "Generate Reply"}
+                </button>
+
+                <button
+                  onClick={() => {
+                    setMode("email");
+                    setInput(selectedEmailDisplay || "");
+                  }}
+                  style={actionButton}
+                >
+                  Load into Editor
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+
+        <div
+          style={{
+            border: "1px solid #e5e5e5",
+            borderRadius: "12px",
+            padding: "16px",
+            minHeight: "420px",
+          }}
+        >
+          <h2 style={{ marginTop: 0, marginBottom: "12px" }}>Selected Meeting</h2>
+
+          {!selectedEvent ? (
+            <div style={{ color: "#666" }}>
+              Select a meeting from calendar to view details.
+            </div>
+          ) : (
+            <>
+              <div style={{ marginBottom: "10px", fontWeight: "bold", fontSize: "20px" }}>
+                {selectedEvent.summary}
+              </div>
+
+              <div style={{ marginBottom: "6px", color: "#444" }}>
+                <strong>Start:</strong> {selectedEvent.start}
+              </div>
+
+              <div style={{ marginBottom: "6px", color: "#444" }}>
+                <strong>End:</strong> {selectedEvent.end}
+              </div>
+
+              <div style={{ marginBottom: "6px", color: "#444" }}>
+                <strong>Location:</strong> {selectedEvent.location || "No location"}
+              </div>
+
+              <div
+                style={{
+                  whiteSpace: "pre-wrap",
+                  lineHeight: "1.6",
+                  background: "#fafafa",
+                  borderRadius: "10px",
+                  padding: "14px",
+                  minHeight: "220px",
+                  marginBottom: "16px",
+                }}
+              >
+                {selectedEvent.description || "No description"}
+              </div>
+
+              <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+                <button
+                  onClick={handleSummarizeSelectedEvent}
+                  style={{
+                    padding: "12px 18px",
+                    background: "#0f766e",
+                    color: "white",
+                    border: "none",
+                    borderRadius: "8px",
+                    cursor: "pointer",
+                    fontWeight: "bold",
+                  }}
+                >
+                  {loadingAI ? "Working..." : "Summarize Meeting"}
+                </button>
+
+                <button
+                  onClick={() => {
+                    setMode("meeting");
+                    setInput(selectedEventDisplay || "");
+                  }}
+                  style={actionButton}
+                >
+                  Load into Editor
+                </button>
+
+                {selectedEvent.htmlLink ? (
+                  <a
+                    href={selectedEvent.htmlLink}
+                    target="_blank"
+                    rel="noreferrer"
+                    style={{
+                      ...actionButton,
+                      textDecoration: "none",
+                      display: "inline-block",
+                    }}
+                  >
+                    Open in Google Calendar
+                  </a>
+                ) : null}
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+
+      <div
+        style={{
+          display: "flex",
+          gap: "10px",
+          marginBottom: "20px",
+          flexWrap: "wrap",
+        }}
+      >
+        <button onClick={() => setMode("notes")} style={tabButton(mode === "notes")}>
+          Notes
+        </button>
+
+        <button onClick={() => setMode("email")} style={tabButton(mode === "email")}>
+          Email Thread
+        </button>
+
+        <button onClick={() => setMode("meeting")} style={tabButton(mode === "meeting")}>
+          Meeting Summary
+        </button>
+      </div>
+
       <textarea
-        placeholder="Paste messy notes here..."
+        placeholder={
+          mode === "email"
+            ? "Paste your email thread here..."
+            : mode === "meeting"
+            ? "Paste your meeting notes here..."
+            : "Paste messy notes here..."
+        }
         value={input}
         onChange={(e) => setInput(e.target.value)}
         style={{
           width: "100%",
-          height: "160px",
+          height: "180px",
           padding: "12px",
           fontSize: "16px",
-          borderRadius: "6px",
+          borderRadius: "8px",
           border: "1px solid #ccc",
-          marginBottom: "16px"
+          marginBottom: "16px",
         }}
       />
 
-      <button
-        onClick={handleGenerate}
+      <div
         style={{
-          padding: "12px 20px",
-          background: "black",
-          color: "white",
-          border: "none",
-          borderRadius: "6px",
-          cursor: "pointer",
-          fontWeight: "bold",
-          marginBottom: "20px"
+          display: "flex",
+          gap: "10px",
+          flexWrap: "wrap",
+          marginBottom: "20px",
         }}
       >
-        Generate Structure
-      </button>
+        <button
+          onClick={handleGenerate}
+          style={{
+            padding: "12px 20px",
+            background: "black",
+            color: "white",
+            border: "none",
+            borderRadius: "8px",
+            cursor: "pointer",
+            fontWeight: "bold",
+          }}
+        >
+          {loadingAI ? "Working..." : "Generate"}
+        </button>
+      </div>
 
       {output && (
-        <div style={{ marginTop: "20px" }}>
-          <h2 style={{ marginBottom: "12px" }}>Structured Output</h2>
-
+        <>
           <pre
             style={{
               background: "#f5f5f5",
               padding: "16px",
-              borderRadius: "6px",
+              borderRadius: "10px",
               whiteSpace: "pre-wrap",
-              marginBottom: "16px"
+              lineHeight: "1.7",
             }}
           >
             {output}
@@ -181,105 +991,104 @@ ACTION ITEMS
 
           <div
             style={{
+              marginTop: "20px",
               display: "flex",
+              gap: "10px",
               flexWrap: "wrap",
-              gap: "10px"
             }}
           >
-            <button
-              onClick={copyToClipboard}
-              style={actionButtonStyle}
-            >
+            <button onClick={handleCopy} style={actionButton}>
               Copy
             </button>
 
-            <button
-              onClick={downloadTXT}
-              style={actionButtonStyle}
-            >
-              Download TXT
+            <button onClick={handleExportTxt} style={actionButton}>
+              Export TXT
+            </button>
+
+            <button onClick={handleExportWord} style={actionButton}>
+              Export Word
             </button>
 
             <button
-              onClick={downloadPDF}
-              style={actionButtonStyle}
+              onClick={handleSaveToNotion}
+              style={{
+                ...actionButton,
+                background: "black",
+                color: "white",
+                border: "1px solid black",
+              }}
+              disabled={savingToNotion}
             >
-              Download PDF
-            </button>
-
-            <button
-              onClick={downloadDocx}
-              style={actionButtonStyle}
-            >
-              Download Word
+              {savingToNotion ? "Saving..." : "Save to Notion"}
             </button>
           </div>
-        </div>
+        </>
       )}
 
-      <div style={{ marginTop: "40px" }}>
-        {!proMode ? (
+      <div
+        style={{
+          marginTop: "50px",
+          padding: "20px",
+          background: "#fafafa",
+          borderRadius: "10px",
+        }}
+      >
+        <h3 style={{ marginTop: 0 }}>Upgrade Your Plan</h3>
+
+        <p style={{ color: "#555" }}>
+          Choose your plan and unlock full power:
+        </p>
+
+        <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
           <button
-            onClick={() => setProMode(true)}
+            onClick={() => setPlan("pro")}
             style={{
               padding: "12px 20px",
               border: "none",
               borderRadius: "8px",
               cursor: "pointer",
-              background: "#f2f2f2"
+              background: "black",
+              color: "white",
+              fontWeight: "bold",
             }}
           >
-            Upgrade to Pro – £7/month
+            PRO — £9.99/month
           </button>
-        ) : (
-          <div style={{ color: "green", fontWeight: "bold" }}>
-            Pro mode active
-          </div>
-        )}
+
+          <button
+            onClick={() => setPlan("ultra")}
+            style={{
+              padding: "12px 20px",
+              border: "none",
+              borderRadius: "8px",
+              cursor: "pointer",
+              background: "#6b21a8",
+              color: "white",
+              fontWeight: "bold",
+            }}
+          >
+            ULTRA — £19.99/month
+          </button>
+        </div>
       </div>
 
-      <div style={{ marginTop: "60px" }}>
-        <h2 style={{ marginBottom: "16px" }}>Popular AI note tools</h2>
-
-        <p style={{ marginBottom: "18px", lineHeight: "1.6", color: "#444" }}>
-          Explore common use cases for turning messy notes into structured summaries,
-          reports, follow-ups and action items.
+      <div
+        style={{
+          marginTop: "60px",
+          padding: "20px",
+          borderTop: "1px solid #ddd",
+        }}
+      >
+        <h3>Support</h3>
+        <p>If you have any questions or issues, feel free to reach out:</p>
+        <p>
+          Email: <a href="mailto:sales@adorrolimited.pro">sales@adorrolimited.pro</a>
         </p>
-
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-            gap: "12px"
-          }}
-        >
-          {featuredSeoPages.map((slug) => (
-            <a
-              key={slug}
-              href={`/seo/${slug}`}
-              style={{
-                textDecoration: "none",
-                color: "black",
-                border: "1px solid #ddd",
-                padding: "14px",
-                borderRadius: "8px",
-                background: "#fafafa"
-              }}
-            >
-              {slugToTitle(slug)}
-            </a>
-          ))}
-        </div>
+        <p style={{ fontSize: "14px", color: "#666" }}>
+          We usually respond within 24 hours.
+        </p>
       </div>
     </div>
   );
 }
 
-const actionButtonStyle = {
-  padding: "10px 16px",
-  border: "none",
-  borderRadius: "8px",
-  cursor: "pointer",
-  background: "black",
-  color: "white"
-};
