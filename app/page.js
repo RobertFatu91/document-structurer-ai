@@ -102,6 +102,31 @@ ACTION ITEMS
 - ...
 `;
   }, [selectedEvent]);
+  
+  const handleUpgrade = async (selectedPlan) => {
+  try {
+    const res = await fetch("/api/create-checkout-session", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        plan: selectedPlan,
+      }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.error || "Checkout failed");
+    }
+
+    window.location.href = data.url;
+  } catch (error) {
+    console.error(error);
+    alert(error.message || "Stripe checkout failed");
+  }
+};
 
   const handleGenerate = async () => {
     if (!input.trim()) return;
@@ -1041,7 +1066,7 @@ ${event.description || "No description"}`
 
         <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
           <button
-            onClick={() => setPlan("pro")}
+            onClick={() => handleUpgrade("pro")}
             style={{
               padding: "12px 20px",
               border: "none",
@@ -1056,7 +1081,7 @@ ${event.description || "No description"}`
           </button>
 
           <button
-            onClick={() => setPlan("ultra")}
+            onClick={() => handleUpgrade("ultra")}
             style={{
               padding: "12px 20px",
               border: "none",
