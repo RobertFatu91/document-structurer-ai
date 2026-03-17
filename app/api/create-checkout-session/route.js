@@ -1,25 +1,39 @@
-import Stripe from "stripe"
+import Stripe from "stripe";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
-export async function POST() {
+export async function POST(req) {
   try {
+    const { plan } = await req.json();
+
+    let priceId = "";
+
+    if (plan === "pro") {
+      priceId = process.env.STRIPE_PRICE_ID_PRO;
+    } else if (plan === "ultra") {
+      priceId = process.env.STRIPE_PRICE_ID_ULTRA;
+    } else {
+      return Response.json({ error: "Invalid plan" }, { status: 400 });
+    }
+
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",
       line_items: [
         {
-          price: process.env.STRIPE_PRICE_ID,
+          price: priceId,
           quantity: 1,
         },
       ],
       success_url: `${process.env.NEXT_PUBLIC_SITE_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.NEXT_PUBLIC_SITE_URL}`,
-    })
+      cancel_url: `${process.env.NEXT_PUBLIC_SITE_URL}/`,
+    });
 
-    return Response.json({ url: session.url })
-
+    return Response.json({ url: session.url });
   } catch (error) {
-    console.error(error)
-    return Response.json({ error: "Stripe error" }, { status: 500 })
+    console.error("STRIPE CHECKOUT ERROR:", error);
+    return Response.json(
+      { error: error.message || "Stripe checkout failed" },
+      { status: 500 }
+    );
   }
 }
