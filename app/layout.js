@@ -1,8 +1,8 @@
 import Script from "next/script";
 
 export const metadata = {
-  title: "Document Structurer AI",
-  description: "Turn messy notes into structured summaries instantly."
+  title: "AI Notes, Email & Meeting Assistant | Document Structurer AI",
+  description: "Turn messy notes, email threads and meeting discussions into structured summaries, key points and action items. Save time, stay organized and never miss follow ups."
 };
 
 export default function RootLayout({ children }) {
