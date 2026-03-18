@@ -10,7 +10,6 @@ export default function Home() {
   const [output, setOutput] = useState("");
   const [mode, setMode] = useState("notes");
   const [savingToNotion, setSavingToNotion] = useState(false);
-  const [proMode, setProMode] = useState(false);
 
   const [plan, setPlan] = useState("free");
   const [usageCount, setUsageCount] = useState(0);
@@ -102,39 +101,73 @@ ACTION ITEMS
 - ...
 `;
   }, [selectedEvent]);
-  
+
   const handleUpgrade = async (selectedPlan) => {
-  try {
-    const res = await fetch("/api/create-checkout-session", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        plan: selectedPlan,
-        email: session?.user?.email || "",
+    try {
+      const res = await fetch("/api/create-checkout-session", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          plan: selectedPlan,
+          email: session?.user?.email || "",
+        }),
+      });
 
-      }),
-    });
+      const data = await res.json();
 
-    const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "Checkout failed");
+      }
 
-    if (!res.ok) {
-      throw new Error(data.error || "Checkout failed");
+      window.location.href = data.url;
+    } catch (error) {
+      console.error(error);
+      alert(error.message || "Stripe checkout failed");
     }
+  };
 
-    window.location.href = data.url;
-  } catch (error) {
-    console.error(error);
-    alert(error.message || "Stripe checkout failed");
-  }
-};
+  const syncPlanFromStripe = async (email) => {
+    try {
+      const res = await fetch("/api/plan", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || "Plan sync failed");
+      }
+
+      if (data.plan) {
+        setPlan(data.plan);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    if (session?.user?.email) {
+      syncPlanFromStripe(session.user.email);
+    }
+  }, [session, status]);
 
   const handleGenerate = async () => {
     if (!input.trim()) return;
 
     if (plan === "free" && usageCount >= 3) {
       alert("You have used all 3 free transformations. Upgrade to continue.");
+      return;
+    }
+
+    if ((mode === "email" || mode === "meeting") && plan !== "ultra") {
+      alert("Email and calendar analysis are available only on the ULTRA plan.");
       return;
     }
 
@@ -569,48 +602,17 @@ ${selectedEvent.description || "No description"}`;
         </div>
 
         <button
-          onClick={() => setPlan("free")}
+          onClick={() => session?.user?.email && syncPlanFromStripe(session.user.email)}
           style={{
             padding: "10px 14px",
             borderRadius: "8px",
             border: "1px solid #ddd",
-            background: plan === "free" ? "black" : "white",
-            color: plan === "free" ? "white" : "black",
+            background: "white",
             cursor: "pointer",
             fontWeight: "bold",
           }}
         >
-          FREE
-        </button>
-
-        <button
-          onClick={() => setPlan("pro")}
-          style={{
-            padding: "10px 14px",
-            borderRadius: "8px",
-            border: "1px solid #ddd",
-            background: plan === "pro" ? "black" : "white",
-            color: plan === "pro" ? "white" : "black",
-            cursor: "pointer",
-            fontWeight: "bold",
-          }}
-        >
-          PRO
-        </button>
-
-        <button
-          onClick={() => setPlan("ultra")}
-          style={{
-            padding: "10px 14px",
-            borderRadius: "8px",
-            border: "1px solid #ddd",
-            background: plan === "ultra" ? "black" : "white",
-            color: plan === "ultra" ? "white" : "black",
-            cursor: "pointer",
-            fontWeight: "bold",
-          }}
-        >
-          ULTRA
+          Refresh Plan
         </button>
 
         <div style={{ color: "#555" }}>
