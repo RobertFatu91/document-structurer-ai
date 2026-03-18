@@ -627,13 +627,13 @@ ${selectedEvent.description || "No description"}`;
 
 {plan === "pro" && (
   <div style={{ color: "green", fontWeight: "bold" }}>
-    Pro access active
+    Pro access active.
   </div>
 )}
 
 {plan === "ultra" && (
   <div style={{ color: "green", fontWeight: "bold" }}>
-    Unlimited access active
+    Unlimited access active.
   </div>
 )}
       </div>
