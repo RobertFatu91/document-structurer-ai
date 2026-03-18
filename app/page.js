@@ -615,9 +615,15 @@ ${selectedEvent.description || "No description"}`;
           Refresh Plan
         </button>
 
+        {plan === "free" ? (
         <div style={{ color: "#555" }}>
-          Free uses left: {Math.max(0, 3 - usageCount)}
+        Free uses left: {Math.max(0, 3 - usageCount)}
+         </div>
+         ) : (
+        <div style={{ color: "green", fontWeight: "bold" }}>
+        Unlimited access active
         </div>
+       )}
       </div>
 
       <h1 style={{ fontSize: "42px", marginBottom: "10px" }}>
