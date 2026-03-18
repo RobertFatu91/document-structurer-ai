@@ -16,28 +16,46 @@ export async function POST(req) {
       process.env.STRIPE_WEBHOOK_SECRET
     );
   } catch (error) {
-    console.error("WEBHOOK SIGNATURE ERROR:", error.message);
+    console.error("WEBHOOK SIGNATURE ERROR:", error);
     return new Response(`Webhook Error: ${error.message}`, { status: 400 });
   }
 
   try {
+    console.log("WEBHOOK EVENT TYPE:", event.type);
+
     if (event.type === "checkout.session.completed") {
       const session = event.data.object;
+      console.log("CHECKOUT SESSION:", session);
 
       const customerEmail =
         session.customer_details?.email || session.customer_email || null;
 
-      const subscriptionId = session.subscription || null;
-      const customerId = session.customer || null;
+      const subscriptionId =
+        typeof session.subscription === "string"
+          ? session.subscription
+          : session.subscription?.id || null;
+
+      const customerId =
+        typeof session.customer === "string"
+          ? session.customer
+          : session.customer?.id || null;
 
       let stripePriceId = null;
       let subscriptionStatus = null;
 
       if (subscriptionId) {
         const subscription = await stripe.subscriptions.retrieve(subscriptionId);
-        stripePriceId = subscription.items.data[0]?.price?.id || null;
+        console.log("SUBSCRIPTION FROM CHECKOUT:", subscription);
+
+        stripePriceId = subscription.items?.data?.[0]?.price?.id || null;
         subscriptionStatus = subscription.status || null;
       }
+
+      console.log("customerEmail:", customerEmail);
+      console.log("customerId:", customerId);
+      console.log("subscriptionId:", subscriptionId);
+      console.log("stripePriceId:", stripePriceId);
+      console.log("subscriptionStatus:", subscriptionStatus);
 
       if (customerEmail) {
         await saveStripeCustomerData({
@@ -51,25 +69,33 @@ export async function POST(req) {
         if (stripePriceId === process.env.STRIPE_PRICE_ID_PRO) {
           await setUserPlan(customerEmail, "pro");
           await resetFreeUsage(customerEmail);
+          console.log("PLAN UPDATED TO PRO FOR:", customerEmail);
         }
 
         if (stripePriceId === process.env.STRIPE_PRICE_ID_ULTRA) {
           await setUserPlan(customerEmail, "ultra");
           await resetFreeUsage(customerEmail);
+          console.log("PLAN UPDATED TO ULTRA FOR:", customerEmail);
         }
       }
     }
 
     if (event.type === "customer.subscription.updated") {
       const subscription = event.data.object;
+      console.log("SUBSCRIPTION UPDATED EVENT:", subscription);
 
-      const customerId = subscription.customer || null;
+      const customerId =
+        typeof subscription.customer === "string"
+          ? subscription.customer
+          : subscription.customer?.id || null;
+
       const subscriptionId = subscription.id || null;
-      const stripePriceId = subscription.items.data[0]?.price?.id || null;
+      const stripePriceId = subscription.items?.data?.[0]?.price?.id || null;
       const subscriptionStatus = subscription.status || null;
 
       if (customerId) {
         const customer = await stripe.customers.retrieve(customerId);
+        console.log("CUSTOMER FROM SUB UPDATED:", customer);
 
         if (!customer.deleted && customer.email) {
           await saveStripeCustomerData({
@@ -84,11 +110,13 @@ export async function POST(req) {
             if (stripePriceId === process.env.STRIPE_PRICE_ID_PRO) {
               await setUserPlan(customer.email, "pro");
               await resetFreeUsage(customer.email);
+              console.log("PLAN UPDATED TO PRO FROM SUB UPDATE:", customer.email);
             }
 
             if (stripePriceId === process.env.STRIPE_PRICE_ID_ULTRA) {
               await setUserPlan(customer.email, "ultra");
               await resetFreeUsage(customer.email);
+              console.log("PLAN UPDATED TO ULTRA FROM SUB UPDATE:", customer.email);
             }
           }
         }
@@ -97,10 +125,16 @@ export async function POST(req) {
 
     if (event.type === "customer.subscription.deleted") {
       const subscription = event.data.object;
-      const customerId = subscription.customer || null;
+      console.log("SUBSCRIPTION DELETED EVENT:", subscription);
+
+      const customerId =
+        typeof subscription.customer === "string"
+          ? subscription.customer
+          : subscription.customer?.id || null;
 
       if (customerId) {
         const customer = await stripe.customers.retrieve(customerId);
+        console.log("CUSTOMER FROM SUB DELETED:", customer);
 
         if (!customer.deleted && customer.email) {
           await saveStripeCustomerData({
@@ -112,13 +146,20 @@ export async function POST(req) {
           });
 
           await setUserPlan(customer.email, "free");
+          console.log("PLAN UPDATED TO FREE FOR:", customer.email);
         }
       }
     }
 
     return Response.json({ received: true });
   } catch (error) {
-    console.error("WEBHOOK HANDLER ERROR:", error);
-    return Response.json({ error: "Webhook handler failed" }, { status: 500 });
+    console.error("WEBHOOK HANDLER ERROR FULL:", error);
+    return Response.json(
+      {
+        error: "Webhook handler failed",
+        details: error.message || "Unknown error",
+      },
+      { status: 500 }
+    );
   }
 }
