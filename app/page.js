@@ -129,28 +129,32 @@ ACTION ITEMS
   };
 
   const syncPlanFromStripe = async (email) => {
-    try {
-      const res = await fetch("/api/plan", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email }),
-      });
+  try {
+    const res = await fetch("/api/plan", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email }),
+    });
 
-      const data = await res.json();
+    const data = await res.json();
 
-      if (!res.ok) {
-        throw new Error(data.error || "Plan sync failed");
-      }
-
-      if (data.plan) {
-        setPlan(data.plan);
-      }
-    } catch (error) {
-      console.error(error);
+    if (!res.ok) {
+      throw new Error(data.error || "Plan sync failed");
     }
-  };
+
+    if (data.plan) {
+      setPlan(data.plan);
+
+      if (data.plan !== "free") {
+        setUsageCount(0);
+      }
+    }
+  } catch (error) {
+    console.error(error);
+  }
+};
 
   useEffect(() => {
     if (session?.user?.email) {
@@ -615,15 +619,17 @@ ${selectedEvent.description || "No description"}`;
           Refresh Plan
         </button>
 
-        {plan === "free" ? (
-        <div style={{ color: "#555" }}>
-        Free uses left: {Math.max(0, 3 - usageCount)}
-         </div>
-         ) : (
-        <div style={{ color: "green", fontWeight: "bold" }}>
-        Unlimited access active
-        </div>
-       )}
+         {plan === "free" && (
+  <div style={{ color: "#555" }}>
+    Free uses left: {Math.max(0, 3 - usageCount)}
+  </div>
+)}
+
+{plan !== "free" && (
+  <div style={{ color: "green", fontWeight: "bold" }}>
+    Unlimited access active
+  </div>
+)}
       </div>
 
       <h1 style={{ fontSize: "42px", marginBottom: "10px" }}>
@@ -1068,44 +1074,63 @@ ${event.description || "No description"}`
           borderRadius: "10px",
         }}
       >
-        <h3 style={{ marginTop: 0 }}>Upgrade Your Plan</h3>
-
-        <p style={{ color: "#555" }}>
-          Choose your plan and unlock full power:
-        </p>
-
-        <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
-          <button
-            onClick={() => handleUpgrade("pro")}
-            style={{
-              padding: "12px 20px",
-              border: "none",
-              borderRadius: "8px",
-              cursor: "pointer",
-              background: "black",
-              color: "white",
-              fontWeight: "bold",
-            }}
-          >
-            PRO — £9.99/month
-          </button>
-
-          <button
-            onClick={() => handleUpgrade("ultra")}
-            style={{
-              padding: "12px 20px",
-              border: "none",
-              borderRadius: "8px",
-              cursor: "pointer",
-              background: "#6b21a8",
-              color: "white",
-              fontWeight: "bold",
-            }}
-          >
-            ULTRA — £19.99/month
-          </button>
-        </div>
+           
       </div>
+
+         <div
+  style={{
+    marginTop: "50px",
+    padding: "20px",
+    background: "#fafafa",
+    borderRadius: "10px",
+  }}
+>
+  {plan === "free" ? (
+    <>
+      <h3 style={{ marginTop: 0 }}>Upgrade Your Plan</h3>
+
+      <p style={{ color: "#555" }}>
+        Choose your plan and unlock full power:
+      </p>
+
+      <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+        <button
+          onClick={() => handleUpgrade("pro")}
+          style={{
+            padding: "12px 20px",
+            border: "none",
+            borderRadius: "8px",
+            cursor: "pointer",
+            background: "black",
+            color: "white",
+            fontWeight: "bold",
+          }}
+        >
+          PRO — £9.99/month
+        </button>
+
+        <button
+          onClick={() => handleUpgrade("ultra")}
+          style={{
+            padding: "12px 20px",
+            border: "none",
+            borderRadius: "8px",
+            cursor: "pointer",
+            background: "#6b21a8",
+            color: "white",
+            fontWeight: "bold",
+          }}
+        >
+          ULTRA — £19.99/month
+        </button>
+      </div>
+    </>
+  ) : (
+    <div style={{ color: "green", fontWeight: "bold" }}>
+      {plan === "pro" ? "PRO plan active" : "ULTRA plan active"}
+    </div>
+  )}
+</div>
 
       <div
         style={{
