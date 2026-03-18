@@ -1,4 +1,5 @@
 import Stripe from "stripe";
+import { setUserPlan, resetFreeUsage, saveStripeCustomerData } from "@/lib/billing";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
@@ -20,38 +21,99 @@ export async function POST(req) {
   }
 
   try {
-    switch (event.type) {
-      case "checkout.session.completed": {
-        const session = event.data.object;
-        console.log("CHECKOUT COMPLETED:", {
-          customer: session.customer,
-          customer_email: session.customer_details?.email,
-          subscription: session.subscription,
-        });
-        break;
+    if (event.type === "checkout.session.completed") {
+      const session = event.data.object;
+
+      const customerEmail =
+        session.customer_details?.email || session.customer_email || null;
+
+      const subscriptionId = session.subscription || null;
+      const customerId = session.customer || null;
+
+      let stripePriceId = null;
+      let subscriptionStatus = null;
+
+      if (subscriptionId) {
+        const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+        stripePriceId = subscription.items.data[0]?.price?.id || null;
+        subscriptionStatus = subscription.status || null;
       }
 
-      case "customer.subscription.updated": {
-        const subscription = event.data.object;
-        console.log("SUBSCRIPTION UPDATED:", {
-          id: subscription.id,
-          status: subscription.status,
-          customer: subscription.customer,
+      if (customerEmail) {
+        await saveStripeCustomerData({
+          email: customerEmail,
+          stripeCustomerId: customerId,
+          stripeSubscriptionId: subscriptionId,
+          stripePriceId,
+          subscriptionStatus,
         });
-        break;
-      }
 
-      case "customer.subscription.deleted": {
-        const subscription = event.data.object;
-        console.log("SUBSCRIPTION DELETED:", {
-          id: subscription.id,
-          customer: subscription.customer,
-        });
-        break;
-      }
+        if (stripePriceId === process.env.STRIPE_PRICE_ID_PRO) {
+          await setUserPlan(customerEmail, "pro");
+          await resetFreeUsage(customerEmail);
+        }
 
-      default:
-        console.log(`Unhandled event type: ${event.type}`);
+        if (stripePriceId === process.env.STRIPE_PRICE_ID_ULTRA) {
+          await setUserPlan(customerEmail, "ultra");
+          await resetFreeUsage(customerEmail);
+        }
+      }
+    }
+
+    if (event.type === "customer.subscription.updated") {
+      const subscription = event.data.object;
+
+      const customerId = subscription.customer || null;
+      const subscriptionId = subscription.id || null;
+      const stripePriceId = subscription.items.data[0]?.price?.id || null;
+      const subscriptionStatus = subscription.status || null;
+
+      if (customerId) {
+        const customer = await stripe.customers.retrieve(customerId);
+
+        if (!customer.deleted && customer.email) {
+          await saveStripeCustomerData({
+            email: customer.email,
+            stripeCustomerId: customerId,
+            stripeSubscriptionId: subscriptionId,
+            stripePriceId,
+            subscriptionStatus,
+          });
+
+          if (subscriptionStatus === "active") {
+            if (stripePriceId === process.env.STRIPE_PRICE_ID_PRO) {
+              await setUserPlan(customer.email, "pro");
+              await resetFreeUsage(customer.email);
+            }
+
+            if (stripePriceId === process.env.STRIPE_PRICE_ID_ULTRA) {
+              await setUserPlan(customer.email, "ultra");
+              await resetFreeUsage(customer.email);
+            }
+          }
+        }
+      }
+    }
+
+    if (event.type === "customer.subscription.deleted") {
+      const subscription = event.data.object;
+      const customerId = subscription.customer || null;
+
+      if (customerId) {
+        const customer = await stripe.customers.retrieve(customerId);
+
+        if (!customer.deleted && customer.email) {
+          await saveStripeCustomerData({
+            email: customer.email,
+            stripeCustomerId: customerId,
+            stripeSubscriptionId: subscription.id || null,
+            stripePriceId: null,
+            subscriptionStatus: "canceled",
+          });
+
+          await setUserPlan(customer.email, "free");
+        }
+      }
     }
 
     return Response.json({ received: true });
@@ -60,4 +122,3 @@ export async function POST(req) {
     return Response.json({ error: "Webhook handler failed" }, { status: 500 });
   }
 }
-

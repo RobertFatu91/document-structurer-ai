@@ -1,12 +1,37 @@
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+
+
+import {
+  canUseAi,
+  consumeAiUsageIfNeeded
+} from "@/lib/billing";
+
+
 import OpenAI from "openai";
+
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
 export async function POST(req) {
+  const session = await getServerSession(authOptions);
+const email = session?.user?.email;
+
+console.log("EMAIL:", email);
   try {
     const { type, content } = await req.json();
+    const access = await canUseAi(email);
+
+if (!access.allowed) {
+  return new Response(
+    JSON.stringify({
+      error: "Free limit reached. Upgrade to continue."
+    }),
+    { status: 403 }
+  );
+}
 
     let systemPrompt = "";
 
@@ -83,6 +108,7 @@ Summarize clearly and structure the response well.
         { role: "user", content },
       ],
     });
+    await consumeAiUsageIfNeeded(email);
 
     return Response.json({
       result: completion.choices[0].message.content,
