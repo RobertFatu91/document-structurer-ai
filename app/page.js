@@ -112,6 +112,8 @@ ACTION ITEMS
       },
       body: JSON.stringify({
         plan: selectedPlan,
+        email: session?.user?.email || "",
+
       }),
     });
 

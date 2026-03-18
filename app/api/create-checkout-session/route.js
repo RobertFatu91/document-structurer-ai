@@ -4,7 +4,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 export async function POST(req) {
   try {
-    const { plan } = await req.json();
+    const { plan, email } = await req.json();
 
     let priceId = "";
 
@@ -18,6 +18,7 @@ export async function POST(req) {
 
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",
+      customer_email: email || undefined,
       line_items: [
         {
           price: priceId,
