@@ -1,6 +1,8 @@
 import { google } from "googleapis";
 import { getServerSession } from "next-auth";
-import { authOptions } from "../auth/[...nextauth]/route";
+import { authOptions } from "@/lib/auth";
+import { canUseUltraFeatures } from "@/lib/billing";
+
 
 export async function GET() {
   const session = await getServerSession(authOptions);
@@ -8,6 +10,17 @@ export async function GET() {
   if (!session) {
     return Response.json({ error: "Not authenticated" }, { status: 401 });
   }
+const email = session?.user?.email;
+
+if (!email) {
+  return Response.json({ error: "Unauthorized" }, { status: 401 });
+}
+
+const isUltra = await canUseUltraFeatures(email);
+
+if (!isUltra) {
+  return Response.json({ error: "Ultra plan required" }, { status: 403 });
+}
 
   const accessToken = session.accessToken;
 
