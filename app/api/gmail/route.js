@@ -2,6 +2,7 @@ import { google } from "googleapis";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { canUseUltraFeatures } from "@/lib/billing";
+import { gmailRateLimit } from "@/lib/rate-limit";
 
 function decodeBase64Url(data) {
   if (!data) return "";
@@ -50,6 +51,15 @@ const isUltra = await canUseUltraFeatures(email);
 
 if (!isUltra) {
   return Response.json({ error: "Ultra plan required" }, { status: 403 });
+}
+
+const { success } = await gmailRateLimit.limit(email);
+
+if (!success) {
+  return Response.json(
+    { error: "Too many requests. Please try again in a minute." },
+    { status: 429 }
+  );
 }
 
   const accessToken = session.accessToken;

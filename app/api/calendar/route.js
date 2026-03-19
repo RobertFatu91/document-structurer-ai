@@ -2,6 +2,7 @@ import { google } from "googleapis";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { canUseUltraFeatures } from "@/lib/billing";
+import { calendarRateLimit } from "@/lib/rate-limit";
 
 
 export async function GET() {
@@ -20,6 +21,15 @@ const isUltra = await canUseUltraFeatures(email);
 
 if (!isUltra) {
   return Response.json({ error: "Ultra plan required" }, { status: 403 });
+}
+
+const { success } = await calendarRateLimit.limit(email);
+
+if (!success) {
+  return Response.json(
+    { error: "Too many requests. Please try again in a minute." },
+    { status: 429 }
+  );
 }
 
   const accessToken = session.accessToken;

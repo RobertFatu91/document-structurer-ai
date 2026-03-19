@@ -1,6 +1,6 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-
+import { aiRateLimit } from "@/lib/rate-limit";
 
 import {
   canUseAi,
@@ -18,6 +18,18 @@ const openai = new OpenAI({
 export async function POST(req) {
   const session = await getServerSession(authOptions);
 const email = session?.user?.email;
+
+if (!email) {
+  return Response.json({ error: "Unauthorized" }, { status: 401 });
+}
+const { success } = await aiRateLimit.limit(email);
+
+if (!success) {
+  return Response.json(
+    { error: "Too many requests. Please try again in a minute." },
+    { status: 429 }
+  );
+}
 
 console.log("EMAIL:", email);
   try {
