@@ -15,26 +15,37 @@ export default function Home() {
   const [plan, setPlan] = useState("free");
   const [usageCount, setUsageCount] = useState(0);
 
-  const syncPlanFromStripe = async (email) => {
-    try {
-      const res = await fetch("/api/check-plan", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email }),
-      });
+  const syncPlanFromStripe = async () => {
+  try {
+    const res = await fetch("/api/plan", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      
+    });
 
-      const data = await res.json();
-      setPlan(data.plan);
-    } catch (err) {
-      console.error(err);
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.error || "Plan sync failed");
     }
-  };
+
+    if (data.plan) {
+      setPlan(data.plan);
+
+      if (data.plan !== "free") {
+        setUsageCount(0);
+      }
+    }
+  } catch (error) {
+    console.error(error);
+  }
+};
 
   useEffect(() => {
     if (session?.user?.email) {
-      syncPlanFromStripe(session.user.email);
+      syncPlanFromStripe();
     }
   }, [session]);
   
@@ -153,11 +164,7 @@ ACTION ITEMS
   };
 
 
-  useEffect(() => {
-    if (session?.user?.email) {
-      syncPlanFromStripe(session.user.email);
-    }
-  }, [session, status]);
+ 
 
   const handleGenerate = async () => {
   if (!input.trim()) return;
@@ -642,9 +649,7 @@ ${selectedEvent.description || "No description"}`;
   )}
 
   <button
-    onClick={() =>
-      session?.user?.email && syncPlanFromStripe(session.user.email)
-    }
+    onClick={syncPlanFromStripe}
     style={{
       padding: "10px 14px",
       borderRadius: "8px",
