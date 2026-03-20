@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { signIn, signOut, useSession } from "next-auth/react";
+import jsPDF from "jspdf";
 
 export default function Home() {
   const { data: session, status } = useSession();
@@ -380,6 +381,28 @@ ${selectedEvent.description || "No description"}`;
     a.click();
     URL.revokeObjectURL(url);
   };
+
+  const handleExportPDF = () => {
+  if (!output) return;
+
+  const doc = new jsPDF({
+    orientation: "portrait",
+    unit: "mm",
+    format: "a4",
+  });
+
+  const marginLeft = 15;
+  const marginTop = 20;
+  const maxWidth = 180;
+
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(12);
+
+  const lines = doc.splitTextToSize(output, maxWidth);
+  doc.text(lines, marginLeft, marginTop);
+
+  doc.save("structured-document.pdf");
+};
 
   const handleSaveToNotion = async () => {
     if (!output) return;
