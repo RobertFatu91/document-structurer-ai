@@ -664,20 +664,102 @@ ${selectedEvent.description || "No description"}`;
 </div>
 
       <h1 style={{ fontSize: "42px", marginBottom: "10px" }}>
-        AI Notes, Email & Meeting Assistant
-      </h1>
+  AI Assistant for Notes, Emails and Client Documents
+</h1>
 
-      <p style={{ fontSize: "18px", marginBottom: "24px" }}>
-        Turn messy notes, email threads and meeting discussions into structured
-        summaries, key points and action items instantly.
-      </p>
+      <p style={{ fontSize: "18px", marginBottom: "10px" }}>
+  Perfect for self employed and service businesses
+</p>
 
 <p style={{ fontSize: "18px", color: "#555", marginBottom: "10px" }}>
-  Write emails, meeting notes, messages and summaries faster with AI.
+  Turn messy messages into professional client-ready text in seconds
 </p>
 
 <div style={{ color: "#666", marginBottom: "30px" }}>
   Save time. Write faster. Upgrade only when you need more power.
+</div>
+
+<div style={{ marginBottom: "20px" }}>
+  <a
+    href="/"
+    style={{
+      display: "inline-block",
+      padding: "12px 24px",
+      background: "#2563EB",
+      color: "#fff",
+      borderRadius: "10px",
+      fontWeight: "600",
+      textDecoration: "none",
+    }}
+  >
+    Try it free
+  </a>
+</div>
+
+<div
+  style={{
+    display: "flex",
+    flexWrap: "wrap",
+    justifyContent: "center",
+    gap: "10px",
+    marginBottom: "20px",
+  }}
+>
+  <span
+    style={{
+      border: "1px solid #ddd",
+      borderRadius: "999px",
+      padding: "8px 14px",
+      fontSize: "14px",
+      color: "#444",
+      background: "#fff",
+      cursor: "pointer"
+    }}
+  >
+    Copy text
+  </span>
+
+  <span
+    style={{
+      border: "1px solid #ddd",
+      borderRadius: "999px",
+      padding: "8px 14px",
+      fontSize: "14px",
+      color: "#444",
+      background: "#fff",
+      cursor: "pointer"
+    }}
+  >
+    Export to Notion
+  </span>
+
+  <span
+    style={{
+      border: "1px solid #ddd",
+      borderRadius: "999px",
+      padding: "8px 14px",
+      fontSize: "14px",
+      color: "#444",
+      background: "#fff",
+      cursor: "pointer"
+    }}
+  >
+    Export to Word
+  </span>
+
+  <span
+    style={{
+      border: "1px solid #ddd",
+      borderRadius: "999px",
+      padding: "8px 14px",
+      fontSize: "14px",
+      color: "#444",
+      background: "#fff",
+      cursor: "pointer"
+    }}
+  >
+    Export to PDF
+  </span>
 </div>
 
       <a
@@ -690,7 +772,7 @@ ${selectedEvent.description || "No description"}`;
           textDecoration: "none",
         }}
       >
-        Manage Integrations and Automations →
+        View features →
       </a>
 
       <div
