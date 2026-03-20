@@ -697,6 +697,123 @@ ${selectedEvent.description || "No description"}`;
 </div>
 
 <div
+        style={{
+          display: "flex",
+          gap: "10px",
+          marginBottom: "20px",
+          flexWrap: "wrap",
+        }}
+      >
+        <button onClick={() => setMode("notes")} style={tabButton(mode === "notes")}>
+          Notes
+        </button>
+
+        <button onClick={() => setMode("email")} style={tabButton(mode === "email")}>
+          Email Thread
+        </button>
+
+        <button onClick={() => setMode("meeting")} style={tabButton(mode === "meeting")}>
+          Meeting Summary
+        </button>
+      </div>
+
+      <textarea
+        placeholder={
+          mode === "email"
+            ? "Paste your email thread here..."
+            : mode === "meeting"
+            ? "Paste your meeting notes here..."
+            : "Paste messy notes here..."
+        }
+        value={input}
+        onChange={(e) => setInput(e.target.value)}
+        style={{
+          width: "100%",
+          height: "180px",
+          padding: "12px",
+          fontSize: "16px",
+          borderRadius: "8px",
+          border: "1px solid #ccc",
+          marginBottom: "16px",
+        }}
+      />
+
+      <div
+  id="tool"
+  style={{
+    display: "flex",
+    gap: "10px",
+    flexWrap: "wrap",
+    marginBottom: "20px",
+  }}
+>
+        <button
+          onClick={handleGenerate}
+          style={{
+            padding: "12px 20px",
+            background: "black",
+            color: "white",
+            border: "none",
+            borderRadius: "8px",
+            cursor: "pointer",
+            fontWeight: "bold",
+          }}
+        >
+          {loadingAI ? "Working..." : "Generate"}
+        </button>
+      </div>
+
+      {output && (
+        <>
+          <pre
+            style={{
+              background: "#f5f5f5",
+              padding: "16px",
+              borderRadius: "10px",
+              whiteSpace: "pre-wrap",
+              lineHeight: "1.7",
+            }}
+          >
+            {output}
+          </pre>
+
+          <div
+            style={{
+              marginTop: "20px",
+              display: "flex",
+              gap: "10px",
+              flexWrap: "wrap",
+            }}
+          >
+            <button onClick={handleCopy} style={actionButton}>
+              Copy
+            </button>
+
+            <button onClick={handleExportTxt} style={actionButton}>
+              Export TXT
+            </button>
+
+            <button onClick={handleExportWord} style={actionButton}>
+              Export Word
+            </button>
+
+            <button
+              onClick={handleSaveToNotion}
+              style={{
+                ...actionButton,
+                background: "black",
+                color: "white",
+                border: "1px solid black",
+              }}
+              disabled={savingToNotion}
+            >
+              {savingToNotion ? "Saving..." : "Save to Notion"}
+            </button>
+          </div>
+        </>
+      )}
+
+<div
   style={{
     display: "flex",
     flexWrap: "wrap",
@@ -1083,122 +1200,7 @@ ${event.description || "No description"}`
         </div>
       </div>
 
-      <div
-        style={{
-          display: "flex",
-          gap: "10px",
-          marginBottom: "20px",
-          flexWrap: "wrap",
-        }}
-      >
-        <button onClick={() => setMode("notes")} style={tabButton(mode === "notes")}>
-          Notes
-        </button>
-
-        <button onClick={() => setMode("email")} style={tabButton(mode === "email")}>
-          Email Thread
-        </button>
-
-        <button onClick={() => setMode("meeting")} style={tabButton(mode === "meeting")}>
-          Meeting Summary
-        </button>
-      </div>
-
-      <textarea
-        placeholder={
-          mode === "email"
-            ? "Paste your email thread here..."
-            : mode === "meeting"
-            ? "Paste your meeting notes here..."
-            : "Paste messy notes here..."
-        }
-        value={input}
-        onChange={(e) => setInput(e.target.value)}
-        style={{
-          width: "100%",
-          height: "180px",
-          padding: "12px",
-          fontSize: "16px",
-          borderRadius: "8px",
-          border: "1px solid #ccc",
-          marginBottom: "16px",
-        }}
-      />
-
-      <div
-  id="tool"
-  style={{
-    display: "flex",
-    gap: "10px",
-    flexWrap: "wrap",
-    marginBottom: "20px",
-  }}
->
-        <button
-          onClick={handleGenerate}
-          style={{
-            padding: "12px 20px",
-            background: "black",
-            color: "white",
-            border: "none",
-            borderRadius: "8px",
-            cursor: "pointer",
-            fontWeight: "bold",
-          }}
-        >
-          {loadingAI ? "Working..." : "Generate"}
-        </button>
-      </div>
-
-      {output && (
-        <>
-          <pre
-            style={{
-              background: "#f5f5f5",
-              padding: "16px",
-              borderRadius: "10px",
-              whiteSpace: "pre-wrap",
-              lineHeight: "1.7",
-            }}
-          >
-            {output}
-          </pre>
-
-          <div
-            style={{
-              marginTop: "20px",
-              display: "flex",
-              gap: "10px",
-              flexWrap: "wrap",
-            }}
-          >
-            <button onClick={handleCopy} style={actionButton}>
-              Copy
-            </button>
-
-            <button onClick={handleExportTxt} style={actionButton}>
-              Export TXT
-            </button>
-
-            <button onClick={handleExportWord} style={actionButton}>
-              Export Word
-            </button>
-
-            <button
-              onClick={handleSaveToNotion}
-              style={{
-                ...actionButton,
-                background: "black",
-                color: "white",
-                border: "1px solid black",
-              }}
-              disabled={savingToNotion}
-            >
-              {savingToNotion ? "Saving..." : "Save to Notion"}
-            </button>
-          </div>
-        </>
-      )}
+      
 
       <div
         style={{
