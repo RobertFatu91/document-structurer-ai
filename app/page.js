@@ -733,6 +733,22 @@ ${selectedEvent.description || "No description"}`;
   </button>
 </div>
 
+{upgradeMessage && (
+  <div
+    style={{
+      marginBottom: "16px",
+      padding: "12px 16px",
+      background: "#fff4e5",
+      color: "#8a4b00",
+      border: "1px solid #f5c27a",
+      borderRadius: "8px",
+      fontWeight: "500",
+    }}
+  >
+    {upgradeMessage}
+  </div>
+)}
+
 <textarea
   placeholder={
     mode === "email"
