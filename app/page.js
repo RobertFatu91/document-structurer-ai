@@ -681,7 +681,7 @@ ${selectedEvent.description || "No description"}`;
 
 <div style={{ marginBottom: "20px" }}>
   <a
-    href="#tool"
+
     style={{
       display: "inline-block",
       padding: "12px 24px",
@@ -689,207 +689,107 @@ ${selectedEvent.description || "No description"}`;
       color: "#fff",
       borderRadius: "10px",
       fontWeight: "600",
-      textDecoration: "none",
+      
     }}
   >
     Try it free
   </a>
 </div>
 
+<div style={{ display: "flex", gap: "10px", marginBottom: "20px", flexWrap: "wrap" }}>
+  <button onClick={() => setMode("notes")} style={tabButton(mode === "notes")}>
+    Notes
+  </button>
+
+  <button onClick={() => setMode("email")} style={tabButton(mode === "email")}>
+    Email Thread
+  </button>
+
+  <button onClick={() => setMode("meeting")} style={tabButton(mode === "meeting")}>
+    Meeting Summary
+  </button>
+</div>
+
+<textarea
+  placeholder={
+    mode === "email"
+      ? "Paste your email thread here..."
+      : mode === "meeting"
+      ? "Paste your meeting notes here..."
+      : "Paste messy notes here..."
+  }
+  value={input}
+  onChange={(e) => setInput(e.target.value)}
+  style={{
+    width: "100%",
+    height: "180px",
+    padding: "12px",
+    fontSize: "16px",
+    borderRadius: "8px",
+    border: "1px solid #ccc",
+    marginBottom: "16px",
+  }}
+/>
+
 <div
-        style={{
-          display: "flex",
-          gap: "10px",
-          marginBottom: "20px",
-          flexWrap: "wrap",
-        }}
-      >
-        <button onClick={() => setMode("notes")} style={tabButton(mode === "notes")}>
-          Notes
-        </button>
-
-        <button onClick={() => setMode("email")} style={tabButton(mode === "email")}>
-          Email Thread
-        </button>
-
-        <button onClick={() => setMode("meeting")} style={tabButton(mode === "meeting")}>
-          Meeting Summary
-        </button>
-      </div>
-
-      <textarea
-        placeholder={
-          mode === "email"
-            ? "Paste your email thread here..."
-            : mode === "meeting"
-            ? "Paste your meeting notes here..."
-            : "Paste messy notes here..."
-        }
-        value={input}
-        onChange={(e) => setInput(e.target.value)}
-        style={{
-          width: "100%",
-          height: "180px",
-          padding: "12px",
-          fontSize: "16px",
-          borderRadius: "8px",
-          border: "1px solid #ccc",
-          marginBottom: "16px",
-        }}
-      />
-
-      <div
   id="tool"
   style={{
     display: "flex",
     gap: "10px",
     flexWrap: "wrap",
     marginBottom: "20px",
+    alignItems: "center",
   }}
 >
-        <button
-          onClick={handleGenerate}
-          style={{
-            padding: "12px 20px",
-            background: "black",
-            color: "white",
-            border: "none",
-            borderRadius: "8px",
-            cursor: "pointer",
-            fontWeight: "bold",
-          }}
-        >
-          {loadingAI ? "Working..." : "Generate"}
-        </button>
-      </div>
+  <button
+    onClick={handleGenerate}
+    style={{
+      padding: "12px 20px",
+      background: "black",
+      color: "white",
+      border: "none",
+      borderRadius: "8px",
+      cursor: "pointer",
+      fontWeight: "bold",
+    }}
+  >
+    {loadingAI ? "Working..." : "Generate"}
+  </button>
 
-      {output && (
-        <>
-          <pre
-            style={{
-              background: "#f5f5f5",
-              padding: "16px",
-              borderRadius: "10px",
-              whiteSpace: "pre-wrap",
-              lineHeight: "1.7",
-            }}
-          >
-            {output}
-          </pre>
+  <button onClick={handleCopy} style={actionButton} disabled={!output}>
+    Copy
+  </button>
 
-          <div
-            style={{
-              marginTop: "20px",
-              display: "flex",
-              gap: "10px",
-              flexWrap: "wrap",
-            }}
-          >
-            <button onClick={handleCopy} style={actionButton}>
-              Copy
-            </button>
+  <button
+    onClick={handleSaveToNotion}
+    style={actionButton}
+    disabled={!output || savingToNotion}
+  >
+    {savingToNotion ? "Saving..." : "Notion"}
+  </button>
 
-            <button onClick={handleExportTxt} style={actionButton}>
-              Export TXT
-            </button>
+  <button onClick={handleExportWord} style={actionButton} disabled={!output}>
+    Word
+  </button>
 
-            <button onClick={handleExportWord} style={actionButton}>
-              Export Word
-            </button>
-
-            <button
-              onClick={handleSaveToNotion}
-              style={{
-                ...actionButton,
-                background: "black",
-                color: "white",
-                border: "1px solid black",
-              }}
-              disabled={savingToNotion}
-            >
-              {savingToNotion ? "Saving..." : "Save to Notion"}
-            </button>
-          </div>
-        </>
-      )}
-
-<div
-  style={{
-    display: "flex",
-    flexWrap: "wrap",
-    justifyContent: "center",
-    gap: "10px",
-    marginBottom: "20px",
-  }}
->
-  <span
-  onClick={() => {
-    document.getElementById("tool")?.scrollIntoView({ behavior: "smooth" });
-  }}
-  style={{
-    border: "1px solid #ddd",
-    borderRadius: "999px",
-    padding: "8px 14px",
-    fontSize: "14px",
-    color: "#444",
-    background: "#fff",
-    cursor: "pointer",
-  }}
->
-  Copy text
-</span>
-
-  <span
-  onClick={() => {
-    document.getElementById("tool")?.scrollIntoView({ behavior: "smooth" });
-  }}
-  style={{
-    border: "1px solid #ddd",
-    borderRadius: "999px",
-    padding: "8px 14px",
-    fontSize: "14px",
-    color: "#444",
-    background: "#fff",
-    cursor: "pointer",
-  }}
->
-  Export to Notion
-</span>
-
-  <span
-  onClick={() => {
-    document.getElementById("tool")?.scrollIntoView({ behavior: "smooth" });
-  }}
-  style={{
-    border: "1px solid #ddd",
-    borderRadius: "999px",
-    padding: "8px 14px",
-    fontSize: "14px",
-    color: "#444",
-    background: "#fff",
-    cursor: "pointer",
-  }}
->
-  Export to Word
-</span>
-
-  <span
-  onClick={() => {
-    document.getElementById("tool")?.scrollIntoView({ behavior: "smooth" });
-  }}
-  style={{
-    border: "1px solid #ddd",
-    borderRadius: "999px",
-    padding: "8px 14px",
-    fontSize: "14px",
-    color: "#444",
-    background: "#fff",
-    cursor: "pointer",
-  }}
->
-  Export to PDF
-</span>
+  <button onClick={handleExportPDF} style={actionButton} disabled={!output}>
+    PDF
+  </button>
 </div>
+
+{output && (
+  <pre
+    style={{
+      background: "#f5f5f5",
+      padding: "16px",
+      borderRadius: "10px",
+      whiteSpace: "pre-wrap",
+      lineHeight: "1.7",
+    }}
+  >
+    {output}
+  </pre>
+)}
 
       <a
         href="/integrations"
