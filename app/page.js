@@ -5,6 +5,7 @@ import { signIn, signOut, useSession } from "next-auth/react";
 
 export default function Home() {
   const { data: session, status } = useSession();
+  const [upgradeMessage, setUpgradeMessage] = useState("");
 
   const [input, setInput] = useState("");
   const [output, setOutput] = useState("");
@@ -14,6 +15,29 @@ export default function Home() {
   const [plan, setPlan] = useState("free");
   const [usageCount, setUsageCount] = useState(0);
 
+  const syncPlanFromStripe = async (email) => {
+    try {
+      const res = await fetch("/api/check-plan", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await res.json();
+      setPlan(data.plan);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  useEffect(() => {
+    if (session?.user?.email) {
+      syncPlanFromStripe(session.user.email);
+    }
+  }, [session]);
+  
   const [emails, setEmails] = useState([]);
   const [selectedEmail, setSelectedEmail] = useState(null);
   const [loadingEmails, setLoadingEmails] = useState(false);
@@ -128,33 +152,6 @@ ACTION ITEMS
     }
   };
 
-  const syncPlanFromStripe = async (email) => {
-  try {
-    const res = await fetch("/api/plan", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ email }),
-    });
-
-    const data = await res.json();
-
-    if (!res.ok) {
-      throw new Error(data.error || "Plan sync failed");
-    }
-
-    if (data.plan) {
-      setPlan(data.plan);
-
-      if (data.plan !== "free") {
-        setUsageCount(0);
-      }
-    }
-  } catch (error) {
-    console.error(error);
-  }
-};
 
   useEffect(() => {
     if (session?.user?.email) {
@@ -163,54 +160,59 @@ ACTION ITEMS
   }, [session, status]);
 
   const handleGenerate = async () => {
-    if (!input.trim()) return;
+  if (!input.trim()) return;
 
-    if (plan === "free" && usageCount >= 3) {
-      alert("You have used all 3 free transformations. Upgrade to continue.");
-      return;
+  if (plan === "free" && usageCount >= 3) {
+    setUpgradeMessage("You have used all 3 free transformations. Upgrade to continue.");
+    return;
+  }
+
+  if ((mode === "email" || mode === "meeting") && plan !== "ultra") {
+    alert("Email and calendar analysis are available only on the ULTRA plan.");
+    return;
+  }
+
+  try {
+    setLoadingAI(true);
+
+    const res = await fetch("/api/ai", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        type: mode,
+        content: input,
+      }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.error || "AI failed");
     }
 
-    if ((mode === "email" || mode === "meeting") && plan !== "ultra") {
-      alert("Email and calendar analysis are available only on the ULTRA plan.");
-      return;
-    }
+    setOutput(data.result);
+    setUpgradeMessage("");
 
-    try {
-      setLoadingAI(true);
-
-      const res = await fetch("/api/ai", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          type: mode,
-          content: input,
-        }),
+    if (plan === "free") {
+      setUsageCount((prev) => {
+        const newCount = prev + 1;
+        localStorage.setItem("usageCount", String(newCount));
+        return newCount;
       });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.error || "AI failed");
-      }
-
-      setOutput(data.result);
-
-      if (plan === "free") {
-        setUsageCount((prev) => {
-          const newCount = prev + 1;
-          localStorage.setItem("usageCount", String(newCount));
-          return newCount;
-        });
-      }
-    } catch (error) {
-      console.error(error);
-      alert(error.message || "AI failed");
-    } finally {
-      setLoadingAI(false);
     }
-  };
+  } catch (error) {
+    if (error.message?.toLowerCase().includes("limit")) {
+      setUpgradeMessage("You have used all 3 free transformations. Upgrade to continue.");
+    }
+
+    console.error(error);
+    alert(error.message || "AI failed");
+  } finally {
+    setLoadingAI(false);
+  }
+};
 
   const handleSummarizeSelectedEmail = async () => {
     if (!selectedEmail) return;
@@ -559,84 +561,102 @@ ${selectedEvent.description || "No description"}`;
           )}
         </div>
 
-        <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
-          <button
-            onClick={handleFetchEmails}
-            style={{
-              padding: "12px 20px",
-              background: "#4285F4",
-              color: "white",
-              border: "none",
-              borderRadius: "8px",
-              cursor: "pointer",
-              fontWeight: "bold",
-            }}
-          >
-            {loadingEmails ? "Fetching Emails..." : "Fetch Emails"}
-          </button>
-
-          <button
-            onClick={handleFetchEvents}
-            style={{
-              padding: "12px 20px",
-              background: "#0f766e",
-              color: "white",
-              border: "none",
-              borderRadius: "8px",
-              cursor: "pointer",
-              fontWeight: "bold",
-            }}
-          >
-            {loadingEvents ? "Fetching Meetings..." : "Fetch Meetings"}
-          </button>
-        </div>
+      
       </div>
 
-      <div
-        style={{
-          marginBottom: "20px",
-          display: "flex",
-          gap: "10px",
-          flexWrap: "wrap",
-          alignItems: "center",
-        }}
-      >
-        <div style={{ fontWeight: "bold" }}>
-          Current Plan: {plan.toUpperCase()}
-        </div>
+      <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+  <button
+    onClick={handleFetchEmails}
+    disabled={plan !== "ultra"}
+    style={{
+      padding: "12px 20px",
+      background: plan === "ultra" ? "#4285F4" : "#ccc",
+      color: "white",
+      border: "none",
+      borderRadius: "8px",
+      cursor: plan === "ultra" ? "pointer" : "not-allowed",
+      fontWeight: "bold",
+    }}
+  >
+    {loadingEmails ? "Fetching Emails..." : "Fetch Emails"}
+  </button>
 
-        <button
-          onClick={() => session?.user?.email && syncPlanFromStripe(session.user.email)}
-          style={{
-            padding: "10px 14px",
-            borderRadius: "8px",
-            border: "1px solid #ddd",
-            background: "white",
-            cursor: "pointer",
-            fontWeight: "bold",
-          }}
-        >
-          Refresh Plan
-        </button>
+  <button
+    onClick={handleFetchEvents}
+    disabled={plan !== "ultra"}
+    style={{
+      padding: "12px 20px",
+      background: plan === "ultra" ? "#0f766e" : "#ccc",
+      color: "white",
+      border: "none",
+      borderRadius: "8px",
+      cursor: plan === "ultra" ? "pointer" : "not-allowed",
+      fontWeight: "bold",
+    }}
+  >
+    {loadingEvents ? "Fetching Meetings..." : "Fetch Meetings"}
+  </button>
+</div>
 
-         {plan === "free" && (
-  <div style={{ color: "#555" }}>
-    Free uses left: {Math.max(0, 3 - usageCount)}
+{plan !== "ultra" && (
+  <div style={{ color: "#666", marginTop: "8px" }}>
+    Gmail and Calendar are available on ULTRA only
   </div>
 )}
 
-{plan === "pro" && (
-  <div style={{ color: "green", fontWeight: "bold" }}>
-    Pro access active.
+<div
+  style={{
+    marginBottom: "20px",
+    display: "flex",
+    gap: "10px",
+    flexWrap: "wrap",
+    alignItems: "center",
+  }}
+>
+  <div style={{ fontWeight: "bold", fontSize: "18px" }}>
+    Current Plan: {plan.toUpperCase()}
   </div>
-)}
 
-{plan === "ultra" && (
-  <div style={{ color: "green", fontWeight: "bold" }}>
-    Unlimited access active.
-  </div>
-)}
-      </div>
+  {plan === "free" && (
+    <div style={{ color: "#666" }}>
+      3 free transformations total
+    </div>
+  )}
+
+  {plan === "free" && (
+    <div style={{ color: "#555" }}>
+      Free uses left: {Math.max(0, 3 - usageCount)}
+    </div>
+  )}
+
+  {plan === "pro" && (
+    <div style={{ color: "green", fontWeight: "bold" }}>
+      PRO access active
+    </div>
+  )}
+
+  {plan === "ultra" && (
+    <div style={{ color: "green", fontWeight: "bold" }}>
+      ULTRA access active
+    </div>
+  )}
+
+  <button
+    onClick={() =>
+      session?.user?.email && syncPlanFromStripe(session.user.email)
+    }
+    style={{
+      padding: "10px 14px",
+      borderRadius: "8px",
+      border: "1px solid #ddd",
+      background: "white",
+      cursor: "pointer",
+      fontWeight: "bold",
+    }}
+  >
+    Refresh Plan
+  </button>
+</div>
 
       <h1 style={{ fontSize: "42px", marginBottom: "10px" }}>
         AI Notes, Email & Meeting Assistant
@@ -1083,7 +1103,7 @@ ${event.description || "No description"}`
            
       </div>
 
-         <div
+        <div
   style={{
     marginTop: "50px",
     padding: "20px",
@@ -1091,49 +1111,104 @@ ${event.description || "No description"}`
     borderRadius: "10px",
   }}
 >
-  {plan === "free" ? (
+  {plan === "free" && (
     <>
-      <h3 style={{ marginTop: 0 }}>Upgrade Your Plan</h3>
+      <h3 style={{ marginTop: 0 }}>Choose Your Plan</h3>
 
       <p style={{ color: "#555" }}>
-        Choose your plan and unlock full power:
+        Upgrade to unlock more power and premium features.
       </p>
 
-      <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
-        <button
-          onClick={() => handleUpgrade("pro")}
+      <div style={{ display: "flex", gap: "16px", flexWrap: "wrap" }}>
+        <div
           style={{
-            padding: "12px 20px",
-            border: "none",
-            borderRadius: "8px",
-            cursor: "pointer",
-            background: "black",
-            color: "white",
-            fontWeight: "bold",
+            border: "1px solid #ddd",
+            borderRadius: "10px",
+            padding: "16px",
+            width: "280px",
+            background: "white",
           }}
         >
-          PRO — £9.99/month
-        </button>
+          <h4 style={{ marginTop: 0 }}>PRO</h4>
+          <p>Unlimited AI transformations</p>
+          <p style={{ fontWeight: "bold" }}>£9.99/month</p>
 
-        <button
-          onClick={() => handleUpgrade("ultra")}
+          <button
+            onClick={() => handleUpgrade("pro")}
+            style={{
+              padding: "12px 20px",
+              border: "none",
+              borderRadius: "8px",
+              cursor: "pointer",
+              background: "black",
+              color: "white",
+              fontWeight: "bold",
+            }}
+          >
+            Upgrade to PRO
+          </button>
+        </div>
+
+        <div
           style={{
-            padding: "12px 20px",
-            border: "none",
-            borderRadius: "8px",
-            cursor: "pointer",
-            background: "#6b21a8",
-            color: "white",
-            fontWeight: "bold",
+            border: "1px solid #ddd",
+            borderRadius: "10px",
+            padding: "16px",
+            width: "280px",
+            background: "white",
           }}
         >
-          ULTRA — £19.99/month
-        </button>
+          <h4 style={{ marginTop: 0 }}>ULTRA</h4>
+          <p>Unlimited AI + Gmail + Calendar</p>
+          <p style={{ fontWeight: "bold" }}>£19.99/month</p>
+
+          <button
+            onClick={() => handleUpgrade("ultra")}
+            style={{
+              padding: "12px 20px",
+              border: "none",
+              borderRadius: "8px",
+              cursor: "pointer",
+              background: "#6b21a8",
+              color: "white",
+              fontWeight: "bold",
+            }}
+          >
+            Upgrade to ULTRA
+          </button>
+        </div>
       </div>
     </>
-  ) : (
-    <div style={{ color: "green", fontWeight: "bold" }}>
-      {plan === "pro" ? "PRO plan active" : "ULTRA plan active"}
+  )}
+
+  {plan === "pro" && (
+    <>
+      <h3 style={{ marginTop: 0 }}>Upgrade to ULTRA</h3>
+
+      <p style={{ color: "#555" }}>
+        Unlock Gmail and Calendar integrations.
+      </p>
+
+      <button
+        onClick={() => handleUpgrade("ultra")}
+        style={{
+          padding: "12px 20px",
+          border: "none",
+          borderRadius: "8px",
+          cursor: "pointer",
+          background: "#6b21a8",
+          color: "white",
+          fontWeight: "bold",
+        }}
+      >
+        Upgrade to ULTRA — £19.99/month
+      </button>
+    </>
+  )}
+
+  {plan === "ultra" && (
+    <div style={{ color: "green", fontWeight: "bold", fontSize: "18px" }}>
+      All premium features unlocked
     </div>
   )}
 </div>
