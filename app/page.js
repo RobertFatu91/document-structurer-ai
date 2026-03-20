@@ -681,7 +681,7 @@ ${selectedEvent.description || "No description"}`;
 
 <div style={{ marginBottom: "20px" }}>
   <a
-    href="/"
+    href="#tool"
     style={{
       display: "inline-block",
       padding: "12px 24px",
@@ -706,60 +706,72 @@ ${selectedEvent.description || "No description"}`;
   }}
 >
   <span
-    style={{
-      border: "1px solid #ddd",
-      borderRadius: "999px",
-      padding: "8px 14px",
-      fontSize: "14px",
-      color: "#444",
-      background: "#fff",
-      cursor: "pointer"
-    }}
-  >
-    Copy text
-  </span>
+  onClick={() => {
+    document.getElementById("tool")?.scrollIntoView({ behavior: "smooth" });
+  }}
+  style={{
+    border: "1px solid #ddd",
+    borderRadius: "999px",
+    padding: "8px 14px",
+    fontSize: "14px",
+    color: "#444",
+    background: "#fff",
+    cursor: "pointer",
+  }}
+>
+  Copy text
+</span>
 
   <span
-    style={{
-      border: "1px solid #ddd",
-      borderRadius: "999px",
-      padding: "8px 14px",
-      fontSize: "14px",
-      color: "#444",
-      background: "#fff",
-      cursor: "pointer"
-    }}
-  >
-    Export to Notion
-  </span>
+  onClick={() => {
+    document.getElementById("tool")?.scrollIntoView({ behavior: "smooth" });
+  }}
+  style={{
+    border: "1px solid #ddd",
+    borderRadius: "999px",
+    padding: "8px 14px",
+    fontSize: "14px",
+    color: "#444",
+    background: "#fff",
+    cursor: "pointer",
+  }}
+>
+  Export to Notion
+</span>
 
   <span
-    style={{
-      border: "1px solid #ddd",
-      borderRadius: "999px",
-      padding: "8px 14px",
-      fontSize: "14px",
-      color: "#444",
-      background: "#fff",
-      cursor: "pointer"
-    }}
-  >
-    Export to Word
-  </span>
+  onClick={() => {
+    document.getElementById("tool")?.scrollIntoView({ behavior: "smooth" });
+  }}
+  style={{
+    border: "1px solid #ddd",
+    borderRadius: "999px",
+    padding: "8px 14px",
+    fontSize: "14px",
+    color: "#444",
+    background: "#fff",
+    cursor: "pointer",
+  }}
+>
+  Export to Word
+</span>
 
   <span
-    style={{
-      border: "1px solid #ddd",
-      borderRadius: "999px",
-      padding: "8px 14px",
-      fontSize: "14px",
-      color: "#444",
-      background: "#fff",
-      cursor: "pointer"
-    }}
-  >
-    Export to PDF
-  </span>
+  onClick={() => {
+    document.getElementById("tool")?.scrollIntoView({ behavior: "smooth" });
+  }}
+  style={{
+    border: "1px solid #ddd",
+    borderRadius: "999px",
+    padding: "8px 14px",
+    fontSize: "14px",
+    color: "#444",
+    background: "#fff",
+    cursor: "pointer",
+  }}
+>
+  Export to PDF
+</span>
 </div>
 
       <a
@@ -1114,13 +1126,14 @@ ${event.description || "No description"}`
       />
 
       <div
-        style={{
-          display: "flex",
-          gap: "10px",
-          flexWrap: "wrap",
-          marginBottom: "20px",
-        }}
-      >
+  id="tool"
+  style={{
+    display: "flex",
+    gap: "10px",
+    flexWrap: "wrap",
+    marginBottom: "20px",
+  }}
+>
         <button
           onClick={handleGenerate}
           style={{
