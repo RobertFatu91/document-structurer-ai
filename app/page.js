@@ -672,6 +672,14 @@ ${selectedEvent.description || "No description"}`;
         summaries, key points and action items instantly.
       </p>
 
+<p style={{ fontSize: "18px", color: "#555", marginBottom: "10px" }}>
+  Write emails, meeting notes, messages and summaries faster with AI.
+</p>
+
+<div style={{ color: "#666", marginBottom: "30px" }}>
+  Save time. Write faster. Upgrade only when you need more power.
+</div>
+
       <a
         href="/integrations"
         style={{
