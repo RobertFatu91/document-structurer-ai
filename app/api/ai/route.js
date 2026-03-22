@@ -153,14 +153,35 @@ Summarize clearly and structure the response well.
     });
     await consumeAiUsageIfNeeded(email);
 
-    return Response.json({
-      result: completion.choices[0].message.content,
-    });
+    return new Response(
+  JSON.stringify({
+    result: completion.choices[0].message.content,
+  }),
+  {
+    status: 200,
+    headers: {
+      "Content-Type": "application/json",
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "POST, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type",
+    },
+  }
+);
   } catch (error) {
     console.error("AI ERROR:", error);
-    return Response.json(
-      { error: error.message || "AI failed" },
-      { status: 500 }
-    );
+    return new Response(
+  JSON.stringify({
+    error: error.message || "AI failed",
+  }),
+  {
+    status: 500,
+    headers: {
+      "Content-Type": "application/json",
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "POST, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type",
+    },
+  }
+);
   }
 }
