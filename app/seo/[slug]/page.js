@@ -1,12 +1,12 @@
 import { notFound } from "next/navigation";
 import { seoKeywords } from "../../../data/seoKeywords";
 
-function slugToTitle(slug) {
+const slugTitle = (slug) => {
   return slug
     .split("-")
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(" ");
-}
+};
 
 function buildPageData(slug) {
   const titleText = slugTitle(slug);
