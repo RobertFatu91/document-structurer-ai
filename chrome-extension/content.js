@@ -1,7 +1,13 @@
-function injectButton() {
-  const composeToolbars = document.querySelectorAll('[role="toolbar"]');
+console.log("DOCUMENT STRUCTURER EXTENSION LOADED");
+alert("DOCUMENT STRUCTURER EXTENSION LOADED");
 
-  composeToolbars.forEach((toolbar) => {
+function injectButton() {
+  const composeWindows = document.querySelectorAll('div[role="dialog"]');
+
+  composeWindows.forEach((composeWindow) => {
+    const toolbar = composeWindow.querySelector('div[role="toolbar"]');
+    if (!toolbar) return;
+
     if (toolbar.querySelector(".document-structurer-btn")) return;
 
     const button = document.createElement("button");
@@ -9,8 +15,7 @@ function injectButton() {
     button.className = "document-structurer-btn";
 
     button.addEventListener("click", async () => {
-      const composeBox = toolbar.closest('[role="dialog"]')?.querySelector('[contenteditable="true"]');
-
+      const composeBox = composeWindow.querySelector('[contenteditable="true"]');
       if (!composeBox) return;
 
       const draftText = composeBox.innerText.trim();
@@ -23,21 +28,24 @@ function injectButton() {
         const res = await fetch("https://document-structurer-ai.vercel.app/api/ai", {
           method: "POST",
           headers: {
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
           },
           body: JSON.stringify({
             type: "email",
-            content: draftText
-          })
+            content: draftText,
+          }),
         });
 
         const data = await res.json();
 
         if (data?.result) {
           composeBox.innerText = data.result;
+        } else if (data?.error) {
+          alert(data.error);
         }
       } catch (error) {
         console.error("Extension error:", error);
+        alert("Something went wrong.");
       } finally {
         button.textContent = "Make professional";
         button.disabled = false;
@@ -54,7 +62,7 @@ const observer = new MutationObserver(() => {
 
 observer.observe(document.body, {
   childList: true,
-  subtree: true
+  subtree: true,
 });
 
 injectButton();
