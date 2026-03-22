@@ -60,21 +60,9 @@ if (!success) {
 console.log("EMAIL:", email);
   try {
     const { type, content } = await req.json();
-    const access = { allowed: true };
+    
 
-if (!access.allowed) {
-  return new Response(JSON.stringify({
-    error: "Free limit reached. Upgrade to continue."
-  }), {
-    status: 403,
-    headers: {
-      "Content-Type": "application/json",
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "POST, OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type",
-    },
-  });
-}
+
 
     let systemPrompt = "";
 
