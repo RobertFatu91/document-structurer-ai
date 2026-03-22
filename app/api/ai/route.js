@@ -27,44 +27,53 @@ export async function OPTIONS() {
 }
 
 export async function POST(req) {
-  const session = await getServerSession(authOptions);
-const email = session?.user?.email;
-
-if (!email) {
-  return new Response(JSON.stringify({ error: "Unauthorized" }), {
-  status: 401,
-  headers: {
-    "Content-Type": "application/json",
-    "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Methods": "POST, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type",
-  },
-});
-}
-const { success } = await aiRateLimit.limit(email);
-
-if (!success) {
-  return new Response(JSON.stringify({
-  error: "Too many requests. Please try again in a minute."
-}), {
-  status: 429,
-  headers: {
-    "Content-Type": "application/json",
-    "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Methods": "POST, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type",
-  },
-});
-}
-
-console.log("EMAIL:", email);
   try {
-    const { type, content } = await req.json();
+    const { type, content, email } = await req.json();
+
+    if (!email) {
+      return new Response(
+        JSON.stringify({ error: "No email address detected." }),
+        {
+          status: 400,
+          headers: {
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "POST, OPTIONS",
+            "Access-Control-Allow-Headers": "Content-Type",
+          },
+        }
+      );
+    }
+
+    console.log("EMAIL:", email);
+
+    const { success } = await aiRateLimit.limit(email);
+
+    if (!success) {
+      return new Response(
+        JSON.stringify({
+          error: "Free limit reached. Upgrade to continue.",
+        }),
+        {
+          status: 403,
+          headers: {
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "POST, OPTIONS",
+            "Access-Control-Allow-Headers": "Content-Type",
+          },
+        }
+      );
+    }
+
+    let systemPrompt = "";
+    
+    
+
     
 
 
 
-    let systemPrompt = "";
 
     if (type === "email-summary") {
       systemPrompt = `

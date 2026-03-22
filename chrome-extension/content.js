@@ -1,6 +1,16 @@
 console.log("DOCUMENT STRUCTURER EXTENSION LOADED");
 alert("DOCUMENT STRUCTURER EXTENSION LOADED");
 
+function getUserEmail() {
+  const accountButton = document.querySelector('a[aria-label*="@"]');
+  if (!accountButton) return null;
+
+  const label = accountButton.getAttribute("aria-label") || "";
+  const match = label.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i);
+
+  return match ? match[0] : null;
+}
+
 function injectButton() {
   const composeWindows = document.querySelectorAll('div[role="dialog"]');
 
@@ -43,10 +53,11 @@ function injectButton() {
       button.disabled = true;
 
       chrome.runtime.sendMessage(
-        {
-          type: "STRUCTURE_EMAIL",
-          content: draftText,
-        },
+  {
+    type: "STRUCTURE_EMAIL",
+    content: draftText,
+    email: getUserEmail(),
+  },
         (response) => {
           if (chrome.runtime.lastError) {
             alert("Extension error: " + chrome.runtime.lastError.message);

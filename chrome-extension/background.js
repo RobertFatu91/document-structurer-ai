@@ -2,15 +2,16 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type !== "STRUCTURE_EMAIL") return;
 
   fetch("https://document-structurer-ai.vercel.app/api/ai", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      type: "email-reply",
-      content: message.content,
-    }),
-  })
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    type: "email-reply",
+    content: message.content,
+    email: message.email,
+  }),
+})
     .then(async (res) => {
       const data = await res.json();
       sendResponse({
