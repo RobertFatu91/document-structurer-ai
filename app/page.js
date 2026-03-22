@@ -632,7 +632,25 @@ ${selectedEvent.description || "No description"}`;
           )}
         </div>
 
-      
+      <h2 style={{ marginTop: "40px" }}>
+Popular AI Email Tools
+</h2>
+
+<div style={{
+  display: "grid",
+  gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+  gap: "12px",
+  marginBottom: "40px"
+}}>
+
+<a href="/seo/rewrite-email">Rewrite Email AI</a>
+<a href="/seo/professional-email-generator">Professional Email Generator</a>
+<a href="/seo/fix-email-mistakes">Fix Email Mistakes</a>
+<a href="/seo/improve-email-tone">Improve Email Tone</a>
+<a href="/seo/ai-email-assistant">AI Email Assistant</a>
+
+</div>
+
       </div>
 
       <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
