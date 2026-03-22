@@ -82,6 +82,80 @@ function buildPageData(slug) {
         "Makes replies more professional",
       ],
     },
+    "business-email-writer": {
+  title: "Business Email Writer | Document Structurer AI",
+  description:
+    "Write clearer business emails with AI. Improve wording, structure, and professionalism in seconds.",
+  heading: "Business Email Writer",
+  intro:
+    "Document Structurer AI helps turn rough business emails into cleaner and more professional communication for work, clients, and follow-ups.",
+  benefits: [
+    "Improves business email wording",
+    "Makes messages clearer and more professional",
+    "Saves time on manual rewriting",
+    "Useful for daily work communication",
+  ],
+},
+
+"formal-email-generator": {
+  title: "Formal Email Generator | Document Structurer AI",
+  description:
+    "Generate formal emails with AI for work, requests, applications, and professional communication.",
+  heading: "Formal Email Generator",
+  intro:
+    "Use AI to generate more formal email wording for professional communication, requests, replies, and important messages.",
+  benefits: [
+    "Creates more formal email wording",
+    "Improves clarity and structure",
+    "Useful for professional communication",
+    "Helps you sound more polished",
+  ],
+},
+
+"client-email-generator": {
+  title: "Client Email Generator | Document Structurer AI",
+  description:
+    "Generate clearer and more professional client emails with AI.",
+  heading: "Client Email Generator",
+  intro:
+    "Document Structurer AI helps improve client communication by turning rough drafts into clearer, more professional emails.",
+  benefits: [
+    "Improves client email tone",
+    "Makes replies sound more professional",
+    "Reduces misunderstandings",
+    "Useful for freelancers and service businesses",
+  ],
+},
+
+"professional-email-reply": {
+  title: "Professional Email Reply | Document Structurer AI",
+  description:
+    "Turn rough draft replies into professional email responses with AI.",
+  heading: "Professional Email Reply",
+  intro:
+    "Use AI to rewrite rough email replies into cleaner and more professional responses that are easier to send with confidence.",
+  benefits: [
+    "Improves rough email replies",
+    "Makes responses clearer and more professional",
+    "Saves time on rewriting",
+    "Useful for work and client emails",
+  ],
+},
+
+"follow-up-email-writer": {
+  title: "Follow Up Email Writer | Document Structurer AI",
+  description:
+    "Write better follow-up emails with AI for clients, work, and professional communication.",
+  heading: "Follow Up Email Writer",
+  intro:
+    "Document Structurer AI helps create better follow-up emails by improving wording, clarity, and professionalism.",
+  benefits: [
+    "Improves follow-up email wording",
+    "Makes emails sound more confident",
+    "Useful for client and work follow-ups",
+    "Saves time and reduces editing",
+  ],
+},
   };
 
   if (emailPages[slug]) {
@@ -216,6 +290,120 @@ function buildFaqData(slug) {
           "Yes, it helps improve structure, tone, clarity, and readability.",
       },
     ],
+    "business-email-writer": [
+  {
+    question: "What is a business email writer?",
+    answer:
+      "A business email writer helps improve rough drafts so they sound clearer, more professional, and better structured.",
+  },
+  {
+    question: "Can AI improve business emails?",
+    answer:
+      "Yes, AI can improve wording, clarity, and tone in business emails for work, clients, and daily communication.",
+  },
+  {
+    question: "Who is this useful for?",
+    answer:
+      "It is useful for employees, freelancers, founders, contractors, and anyone who sends work emails regularly.",
+  },
+  {
+    question: "Does it save time?",
+    answer:
+      "Yes, it reduces the time spent manually rewriting and polishing email drafts.",
+  },
+],
+
+"formal-email-generator": [
+  {
+    question: "What is a formal email generator?",
+    answer:
+      "A formal email generator helps create more polished and professional email wording for important communication.",
+  },
+  {
+    question: "Can AI make emails sound more formal?",
+    answer:
+      "Yes, AI can rewrite rough or casual messages into more formal and professional emails.",
+  },
+  {
+    question: "When is this useful?",
+    answer:
+      "It is useful for applications, requests, professional replies, official communication, and work emails.",
+  },
+  {
+    question: "Do I need strong writing skills?",
+    answer:
+      "No, you can start with a rough draft and let AI improve the tone and structure.",
+  },
+],
+
+"client-email-generator": [
+  {
+    question: "What is a client email generator?",
+    answer:
+      "A client email generator helps create better email wording for communication with clients and customers.",
+  },
+  {
+    question: "Can AI improve client communication?",
+    answer:
+      "Yes, it can make client emails clearer, more professional, and easier to understand.",
+  },
+  {
+    question: "Who should use this tool?",
+    answer:
+      "It is useful for freelancers, agencies, consultants, and small business owners who work with clients.",
+  },
+  {
+    question: "Does it help reduce misunderstandings?",
+    answer:
+      "Yes, clearer client emails can reduce confusion and make communication smoother.",
+  },
+],
+
+"professional-email-reply": [
+  {
+    question: "What is a professional email reply tool?",
+    answer:
+      "It helps rewrite rough draft replies into clearer and more professional email responses.",
+  },
+  {
+    question: "Can AI improve email replies?",
+    answer:
+      "Yes, AI can improve tone, wording, and clarity in draft replies before you send them.",
+  },
+  {
+    question: "Is this useful for work emails?",
+    answer:
+      "Yes, it is useful for client replies, internal communication, support emails, and professional follow-ups.",
+  },
+  {
+    question: "Does it save time on replies?",
+    answer:
+      "Yes, it reduces the time spent editing and polishing email responses manually.",
+  },
+],
+
+"follow-up-email-writer": [
+  {
+    question: "What is a follow up email writer?",
+    answer:
+      "A follow up email writer helps create clearer and more professional follow-up messages.",
+  },
+  {
+    question: "Can AI write better follow-up emails?",
+    answer:
+      "Yes, AI can improve follow-up emails by making them more confident, polished, and easier to send.",
+  },
+  {
+    question: "When is this useful?",
+    answer:
+      "It is useful after meetings, client conversations, sales outreach, and unanswered messages.",
+  },
+  {
+    question: "Does it help sound more professional?",
+    answer:
+      "Yes, it improves wording and tone so follow-up emails feel more professional and effective.",
+  },
+],
   };
 
   if (emailFaqs[slug]) {
