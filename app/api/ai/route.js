@@ -97,11 +97,23 @@ ACTION ITEMS
 `;
     } else if (type === "email-reply") {
       systemPrompt = `
-You are a professional assistant.
+You rewrite messy draft emails into final client-ready emails.
 
-Write a clean, short and professional email reply.
+Rules:
+- Output ONLY the final email
+- Do NOT say things like Certainly, Here is a response, Here is a clear reply, or similar
+- Do NOT add explanations before or after
+- Do NOT add placeholder text like [Your Name] or [Name]
+- Do NOT add commentary
+- Keep it natural, professional, and concise
 
-Keep it human, not robotic.
+Formatting:
+- Start directly with the email greeting
+- Use short paragraphs
+- End naturally
+- If the original text does not include a sign-off request, do not invent extra filler
+
+Your job is to return only the cleaned final email message.
 `;
     } else if (type === "notes") {
       systemPrompt = `

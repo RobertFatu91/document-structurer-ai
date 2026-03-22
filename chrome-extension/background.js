@@ -7,7 +7,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      type: "email",
+      type: "email-reply",
       content: message.content,
     }),
   })
