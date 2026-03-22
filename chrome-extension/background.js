@@ -2,18 +2,25 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type !== "STRUCTURE_EMAIL") return;
 
   fetch("https://document-structurer-ai.vercel.app/api/ai", {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-  },
-  body: JSON.stringify({
-    type: "email-reply",
-    content: message.content,
-    email: message.email,
-  }),
-})
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      type: "email-reply",
+      content: message.content,
+      email: message.email,
+    }),
+  })
     .then(async (res) => {
-      const data = await res.json();
+      let data = null;
+
+      try {
+        data = await res.json();
+      } catch {
+        data = { error: "Invalid API response" };
+      }
+
       sendResponse({
         ok: res.ok,
         status: res.status,
@@ -23,7 +30,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     .catch((error) => {
       sendResponse({
         ok: false,
-        error: error.message,
+        status: 0,
+        data: {
+          error: error.message || "Network request failed",
+        },
       });
     });
 

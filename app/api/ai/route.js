@@ -47,7 +47,7 @@ export async function POST(req) {
 
     console.log("EMAIL:", email);
 
-    const { success } = await aiRateLimit.limit(email);
+    const success = false;
 
     if (!success) {
       return new Response(
