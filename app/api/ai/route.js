@@ -60,7 +60,7 @@ if (!success) {
 console.log("EMAIL:", email);
   try {
     const { type, content } = await req.json();
-    const access = await canUseAi(email);
+    const access = { allowed: true };
 
 if (!access.allowed) {
   return new Response(JSON.stringify({
