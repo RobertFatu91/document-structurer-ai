@@ -1,30 +1,4 @@
 export const seoKeywords = [
-  // Meeting notes core
-  "rewrite-email",
-"professional-email-generator",
-"fix-email-mistakes",
-"improve-email-tone",
-"ai-email-assistant",
-"ai-meeting-notes",
-  "meeting-notes-summary",
-  "meeting-notes-organizer",
-  "organize-messy-notes",
-  "notes-to-report",
-  "notes-to-action-items",
-  "call-notes-summary",
-  "client-call-notes",
-  "project-notes-summary",
-  "lecture-notes-organizer",
-  "ai-notes-organizer",
-  "notes-cleanup-tool",
-
-  "rewrite-email",
-  "professional-email-generator",
-  "fix-email-mistakes",
-  "improve-email-tone",
-  "ai-email-assistant",
-
-    // Email pages
   "rewrite-email",
   "professional-email-generator",
   "fix-email-mistakes",
@@ -41,7 +15,6 @@ export const seoKeywords = [
   "follow-up-email-writer",
   "customer-support-email-writer",
 
-  // Meeting notes pages
   "ai-meeting-notes",
   "meeting-notes-summary",
   "meeting-notes-organizer",
@@ -55,7 +28,6 @@ export const seoKeywords = [
   "zoom-meeting-notes",
   "meeting-notes-cleanup",
 
-  // General notes pages
   "organize-messy-notes",
   "notes-to-report",
   "notes-to-action-items",
@@ -65,5 +37,5 @@ export const seoKeywords = [
   "research-notes-organizer",
   "brainstorm-notes-organizer",
   "study-notes-organizer",
-  "notes-cleanup-tool"
+  "notes-cleanup-tool",
 ];
