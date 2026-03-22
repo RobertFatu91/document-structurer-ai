@@ -5,54 +5,84 @@ function injectButton() {
   const composeWindows = document.querySelectorAll('div[role="dialog"]');
 
   composeWindows.forEach((composeWindow) => {
-    const toolbar = composeWindow.querySelector('div[role="toolbar"]');
-    if (!toolbar) return;
+    const toolbars = composeWindow.querySelectorAll('[role="toolbar"]');
+    if (!toolbars.length) return;
 
-    if (toolbar.querySelector(".document-structurer-btn")) return;
+    const bottomToolbar = toolbars[toolbars.length - 1];
+    if (!bottomToolbar) return;
+
+    if (composeWindow.querySelector(".document-structurer-btn")) return;
+
+    const sendButton = composeWindow.querySelector('div[role="button"][data-tooltip^="Send"]');
+    const composeBox = composeWindow.querySelector('[contenteditable="true"]');
+
+    if (!composeBox) return;
 
     const button = document.createElement("button");
     button.textContent = "Make professional";
     button.className = "document-structurer-btn";
+    button.style.marginLeft = "8px";
+    button.style.padding = "8px 12px";
+    button.style.borderRadius = "6px";
+    button.style.border = "none";
+    button.style.background = "black";
+    button.style.color = "white";
+    button.style.cursor = "pointer";
+    button.style.fontSize = "12px";
+    button.style.fontWeight = "600";
 
     button.addEventListener("click", async () => {
-      const composeBox = composeWindow.querySelector('[contenteditable="true"]');
-      if (!composeBox) return;
-
       const draftText = composeBox.innerText.trim();
-      if (!draftText) return;
+
+      if (!draftText) {
+        alert("No draft text found");
+        return;
+      }
 
       button.textContent = "Working...";
       button.disabled = true;
 
-      try {
-        const res = await fetch("https://document-structurer-ai.vercel.app/api/ai", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            type: "email",
-            content: draftText,
-          }),
-        });
+      chrome.runtime.sendMessage(
+        {
+          type: "STRUCTURE_EMAIL",
+          content: draftText,
+        },
+        (response) => {
+          if (chrome.runtime.lastError) {
+            alert("Extension error: " + chrome.runtime.lastError.message);
+            button.textContent = "Make professional";
+            button.disabled = false;
+            return;
+          }
 
-        const data = await res.json();
+          if (!response) {
+            alert("No response from background script");
+            button.textContent = "Make professional";
+            button.disabled = false;
+            return;
+          }
 
-        if (data?.result) {
-          composeBox.innerText = data.result;
-        } else if (data?.error) {
-          alert(data.error);
+          if (response.ok && response.data?.result) {
+            composeBox.innerText = response.data.result;
+          } else if (response.data?.error) {
+            alert(response.data.error);
+          } else if (response.error) {
+            alert("Extension error: " + response.error);
+          } else {
+            alert("Unknown error");
+          }
+
+          button.textContent = "Make professional";
+          button.disabled = false;
         }
-      } catch (error) {
-        console.error("Extension error:", error);
-        alert("Something went wrong.");
-      } finally {
-        button.textContent = "Make professional";
-        button.disabled = false;
-      }
+      );
     });
 
-    toolbar.appendChild(button);
+    if (sendButton && sendButton.parentElement) {
+      sendButton.parentElement.insertAdjacentElement("afterend", button);
+    } else {
+      bottomToolbar.appendChild(button);
+    }
   });
 }
 
