@@ -383,7 +383,7 @@ export default async function SeoPage({ params }) {
               background: "#fafafa"
             }}
           >
-            {slugToTitle(slug)}
+            {slugTitle(slug)}
           </a>
         ))}
       </div>

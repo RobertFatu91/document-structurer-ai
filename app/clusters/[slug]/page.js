@@ -121,7 +121,7 @@ const clusterPages = {
   }
 };
 
-function slugToTitle(slug) {
+function slugTitle(slug) {
   return slug
     .split("-")
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
@@ -211,7 +211,7 @@ export default async function ClusterPage({ params }) {
               background: "#fafafa"
             }}
           >
-            {slugToTitle(keyword)}
+            {slugTitle(keyword)}
           </a>
         ))}
       </div>
