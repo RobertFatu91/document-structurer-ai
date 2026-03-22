@@ -31,6 +31,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       sendResponse({
         ok: false,
         status: 0,
+        error: error.message,
         data: {
           error: error.message || "Network request failed",
         },
