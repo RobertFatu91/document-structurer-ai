@@ -15,20 +15,46 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
+export async function OPTIONS() {
+  return new Response(null, {
+    status: 204,
+    headers: {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "POST, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type",
+    },
+  });
+}
+
 export async function POST(req) {
   const session = await getServerSession(authOptions);
 const email = session?.user?.email;
 
 if (!email) {
-  return Response.json({ error: "Unauthorized" }, { status: 401 });
+  return new Response(JSON.stringify({ error: "Unauthorized" }), {
+  status: 401,
+  headers: {
+    "Content-Type": "application/json",
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "POST, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type",
+  },
+});
 }
 const { success } = await aiRateLimit.limit(email);
 
 if (!success) {
-  return Response.json(
-    { error: "Too many requests. Please try again in a minute." },
-    { status: 429 }
-  );
+  return new Response(JSON.stringify({
+  error: "Too many requests. Please try again in a minute."
+}), {
+  status: 429,
+  headers: {
+    "Content-Type": "application/json",
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "POST, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type",
+  },
+});
 }
 
 console.log("EMAIL:", email);
@@ -37,12 +63,17 @@ console.log("EMAIL:", email);
     const access = await canUseAi(email);
 
 if (!access.allowed) {
-  return new Response(
-    JSON.stringify({
-      error: "Free limit reached. Upgrade to continue."
-    }),
-    { status: 403 }
-  );
+  return new Response(JSON.stringify({
+    error: "Free limit reached. Upgrade to continue."
+  }), {
+    status: 403,
+    headers: {
+      "Content-Type": "application/json",
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "POST, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type",
+    },
+  });
 }
 
     let systemPrompt = "";

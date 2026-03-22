@@ -12,6 +12,33 @@ export default function Home() {
   const [output, setOutput] = useState("");
   const [mode, setMode] = useState("notes");
   const [savingToNotion, setSavingToNotion] = useState(false);
+  const [detectedMode, setDetectedMode] = useState("");
+  const detectMode = (text) => {
+  const lower = text.toLowerCase();
+
+  if (
+    lower.includes("dear ") ||
+    lower.includes("hi ") ||
+    lower.includes("hello ") ||
+    lower.includes("regards") ||
+    lower.includes("kind regards") ||
+    lower.includes("subject:")
+  ) {
+    return "email";
+  }
+
+  if (
+    lower.includes("meeting") ||
+    lower.includes("action items") ||
+    lower.includes("attendees") ||
+    lower.includes("agenda") ||
+    lower.includes("minutes")
+  ) {
+    return "meeting";
+  }
+
+  return "notes";
+};
 
   const [plan, setPlan] = useState("free");
   const [usageCount, setUsageCount] = useState(0);
@@ -171,7 +198,7 @@ ACTION ITEMS
   if (!input.trim()) return;
 
   if (plan === "free" && usageCount >= 3) {
-    setUpgradeMessage("You have used all 3 free transformations. Upgrade to continue.");
+    setUpgradeMessage("Free limit reached. Upgrade now to keep generating client-ready documents instantly.");
     return;
   }
 
@@ -182,14 +209,15 @@ ACTION ITEMS
 
   try {
     setLoadingAI(true);
-
+const effectiveMode = detectMode(input);
+setDetectedMode(effectiveMode);
     const res = await fetch("/api/ai", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        type: mode,
+        type: effectiveMode,
         content: input,
       }),
     });
@@ -393,13 +421,26 @@ ${selectedEvent.description || "No description"}`;
 
   const marginLeft = 15;
   const marginTop = 20;
+  const lineHeight = 7;
   const maxWidth = 180;
+  const pageHeight = doc.internal.pageSize.height;
 
   doc.setFont("helvetica", "normal");
   doc.setFontSize(12);
 
   const lines = doc.splitTextToSize(output, maxWidth);
-  doc.text(lines, marginLeft, marginTop);
+
+  let y = marginTop;
+
+  lines.forEach((line) => {
+    if (y > pageHeight - 20) {
+      doc.addPage();
+      y = marginTop;
+    }
+
+    doc.text(line, marginLeft, y);
+    y += lineHeight;
+  });
 
   doc.save("structured-document.pdf");
 };
@@ -737,7 +778,7 @@ ${selectedEvent.description || "No description"}`;
   <div
     style={{
       marginBottom: "16px",
-      padding: "12px 16px",
+      padding: "16px",
       background: "#fff4e5",
       color: "#8a4b00",
       border: "1px solid #f5c27a",
@@ -745,9 +786,27 @@ ${selectedEvent.description || "No description"}`;
       fontWeight: "500",
     }}
   >
-    {upgradeMessage}
+    <div style={{ marginBottom: "10px" }}>
+      {upgradeMessage}
+    </div>
+
+    <button
+      onClick={() => handleUpgrade("pro")}
+      style={{
+        padding: "10px 16px",
+        background: "black",
+        color: "white",
+        border: "none",
+        borderRadius: "6px",
+        cursor: "pointer",
+        fontWeight: "bold",
+      }}
+    >
+      Upgrade Now
+    </button>
   </div>
 )}
+
 
 <textarea
   placeholder={
@@ -816,18 +875,49 @@ ${selectedEvent.description || "No description"}`;
   </button>
 </div>
 
-{output && (
-  <pre
+{detectedMode && (
+  <div
     style={{
-      background: "#f5f5f5",
-      padding: "16px",
-      borderRadius: "10px",
-      whiteSpace: "pre-wrap",
-      lineHeight: "1.7",
+      marginBottom: "10px",
+      color: "#555",
+      fontSize: "14px",
     }}
   >
-    {output}
-  </pre>
+    Detected mode: {detectedMode}
+  </div>
+)}
+
+{output && (
+  <div
+    style={{
+      background: "#f8fafc",
+      padding: "20px",
+      borderRadius: "12px",
+      border: "1px solid #e5e7eb",
+      marginTop: "10px",
+      marginBottom: "20px",
+    }}
+  >
+    <div
+      style={{
+        fontWeight: "bold",
+        marginBottom: "10px",
+        color: "#111827",
+      }}
+    >
+      Ready to send output
+    </div>
+
+    <div
+      style={{
+        whiteSpace: "pre-wrap",
+        lineHeight: "1.7",
+        color: "#374151",
+      }}
+    >
+      {output}
+    </div>
+  </div>
 )}
 
       <a
