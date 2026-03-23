@@ -916,29 +916,29 @@ const linkCardText = {
 
     <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
 
-      <a href="/seo/rewrite-email" style={linkcardStyle}>
+      <a href="/seo/rewrite-email" style={linkCardStyle}>
         <strong>Rewrite Email</strong>
-        <div style={linkcardText}>Fix messy emails instantly using AI</div>
+        <div style={linkCardText}>Fix messy emails instantly using AI</div>
       </a>
 
-      <a href="/seo/professional-email-generator" style={linkcardStyle}>
+      <a href="/seo/professional-email-generator" style={linkCardStyle}>
         <strong>Professional Email Generator</strong>
-        <div style={linkcardText}>Generate work emails in seconds</div>
+        <div style={linkCardText}>Generate work emails in seconds</div>
       </a>
 
-      <a href="/seo/fix-email-mistakes" style={linkcardStyle}>
+      <a href="/seo/fix-email-mistakes" style={linkCardStyle}>
         <strong>Fix Email Mistakes</strong>
-        <div style={linkcardText}>Correct grammar and tone instantly</div>
+        <div style={linkCardText}>Correct grammar and tone instantly</div>
       </a>
 
-      <a href="/seo/improve-email-tone" style={linkcardStyle}>
+      <a href="/seo/improve-email-tone" style={linkCardStyle}>
         <strong>Improve Email Tone</strong>
-        <div style={linkcardText}>Make emails more professional</div>
+        <div style={linkCardText}>Make emails more professional</div>
       </a>
 
-      <a href="/seo/ai-email-assistant" style={linkcardStyle}>
+      <a href="/seo/ai-email-assistant" style={linkCardStyle}>
         <strong>AI Email Assistant</strong>
-        <div style={linkcardText}>Smart assistant for writing emails</div>
+        <div style={linkCardText}>Smart assistant for writing emails</div>
       </a>
 
     </div>
@@ -950,29 +950,29 @@ const linkCardText = {
 
     <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
 
-      <a href="/blog/how-to-write-professional-emails" style={linkcardStyle}>
+      <a href="/blog/how-to-write-professional-emails" style={linkCardStyle}>
         <strong>How to Write Professional Emails</strong>
-        <div style={linkcardText}>Step by step guide for better emails</div>
+        <div style={linkCardText}>Step by step guide for better emails</div>
       </a>
 
-      <a href="/blog/fix-email-mistakes-guide" style={linkcardStyle}>
+      <a href="/blog/fix-email-mistakes-guide" style={linkCardStyle}>
         <strong>Fix Email Mistakes Guide</strong>
-        <div style={linkcardText}>Common errors and how to fix them</div>
+        <div style={linkCardText}>Common errors and how to fix them</div>
       </a>
 
-      <a href="/blog/improve-email-tone-guide" style={linkcardStyle}>
+      <a href="/blog/improve-email-tone-guide" style={linkCardStyle}>
         <strong>Improve Email Tone</strong>
-        <div style={linkcardText}>Make your emails sound confident</div>
+        <div style={linkCardText}>Make your emails sound confident</div>
       </a>
 
-      <a href="/blog/ai-email-assistant-guide" style={linkcardStyle}>
+      <a href="/blog/ai-email-assistant-guide" style={linkCardStyle}>
         <strong>AI Email Assistant Guide</strong>
-        <div style={linkcardText}>Use AI to write emails faster</div>
+        <div style={linkCardText}>Use AI to write emails faster</div>
       </a>
 
-      <a href="/blog/email-writing-tips" style={linkcardStyle}>
+      <a href="/blog/email-writing-tips" style={linkCardStyle}>
         <strong>Email Writing Tips</strong>
-        <div style={linkcardText}>Write better emails instantly</div>
+        <div style={linkCardText}>Write better emails instantly</div>
       </a>
 
     </div>
