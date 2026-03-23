@@ -13,6 +13,8 @@ export default function Page() {
       </p>
 
       <a href="/"><button>Start organizing</button></a>
+
+      
     </div>
   );
 }

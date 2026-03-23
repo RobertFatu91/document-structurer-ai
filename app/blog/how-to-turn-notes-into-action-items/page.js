@@ -38,6 +38,19 @@ export default function Page() {
       <p>
         Turning notes into action items is one of the most practical uses of AI for productivity.
       </p>
+
+      <div style={{ marginTop: "30px" }}>
+  <a href="/" style={{
+    display: "inline-block",
+    padding: "12px 20px",
+    backgroundColor: "#000",
+    color: "#fff",
+    borderRadius: "8px",
+    textDecoration: "none"
+  }}>
+    Try the tool
+  </a>
+</div>
     </div>
   );
 }

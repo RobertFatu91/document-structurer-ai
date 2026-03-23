@@ -56,7 +56,19 @@ export default function Page() {
         Using AI for meeting notes helps teams stay organized,
         save time, and take action faster.
       </p>
-
+     
+     <div style={{ marginTop: "30px" }}>
+  <a href="/" style={{
+    display: "inline-block",
+    padding: "12px 20px",
+    backgroundColor: "#000",
+    color: "#fff",
+    borderRadius: "8px",
+    textDecoration: "none"
+  }}>
+    Try the tool
+  </a>
+</div>
     </div>
   );
 }

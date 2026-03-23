@@ -40,6 +40,18 @@ export default function Page() {
       <p>
         The best AI email tools are the ones that reduce friction and help you send better emails faster.
       </p>
+      <div style={{ marginTop: "30px" }}>
+  <a href="/" style={{
+    display: "inline-block",
+    padding: "12px 20px",
+    backgroundColor: "#000",
+    color: "#fff",
+    borderRadius: "8px",
+    textDecoration: "none"
+  }}>
+    Try the tool
+  </a>
+</div>
     </div>
   );
 }

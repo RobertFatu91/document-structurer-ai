@@ -38,6 +38,19 @@ export default function Page() {
       <p>
         Fixing emails manually takes time. AI makes the process much faster and helps you send better messages.
       </p>
+
+      <div style={{ marginTop: "30px" }}>
+  <a href="/" style={{
+    display: "inline-block",
+    padding: "12px 20px",
+    backgroundColor: "#000",
+    color: "#fff",
+    borderRadius: "8px",
+    textDecoration: "none"
+  }}>
+    Try the tool
+  </a>
+</div>
     </div>
   );
 }

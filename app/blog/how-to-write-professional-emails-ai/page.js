@@ -53,7 +53,18 @@ export default function Page() {
         AI is becoming one of the fastest ways to improve productivity,
         especially for everyday communication like emails.
       </p>
-
+<div style={{ marginTop: "30px" }}>
+  <a href="/" style={{
+    display: "inline-block",
+    padding: "12px 20px",
+    backgroundColor: "#000",
+    color: "#fff",
+    borderRadius: "8px",
+    textDecoration: "none"
+  }}>
+    Try the tool
+  </a>
+</div>
     </div>
   );
 }

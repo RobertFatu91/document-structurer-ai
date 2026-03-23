@@ -38,6 +38,18 @@ export default function Page() {
       <p>
         Better client emails mean better relationships, better clarity, and often better results.
       </p>
+      <div style={{ marginTop: "30px" }}>
+  <a href="/" style={{
+    display: "inline-block",
+    padding: "12px 20px",
+    backgroundColor: "#000",
+    color: "#fff",
+    borderRadius: "8px",
+    textDecoration: "none"
+  }}>
+    Try the tool
+  </a>
+</div>
     </div>
   );
 }

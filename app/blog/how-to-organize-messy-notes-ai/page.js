@@ -56,7 +56,18 @@ export default function Page() {
         Instead of manually sorting through notes, AI can save you time
         and help you focus on what really matters.
       </p>
-
+<div style={{ marginTop: "30px" }}>
+  <a href="/" style={{
+    display: "inline-block",
+    padding: "12px 20px",
+    backgroundColor: "#000",
+    color: "#fff",
+    borderRadius: "8px",
+    textDecoration: "none"
+  }}>
+    Try the tool
+  </a>
+</div>
     </div>
   );
 }
