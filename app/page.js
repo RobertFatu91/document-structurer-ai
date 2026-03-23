@@ -777,6 +777,42 @@ const linkCardText = {
 
 </div>
 
+<div style={{
+  textAlign: "center",
+  maxWidth: "700px",
+  margin: "0 auto",
+  marginBottom: "30px"
+}}>
+
+  <h2 style={{ marginBottom: "10px" }}>
+    Use it directly inside Gmail
+  </h2>
+
+  <p style={{ color: "#555", marginBottom: "12px" }}>
+    Install the Chrome extension and get a Make professional button inside Gmail.
+  </p>
+
+  <p style={{ color: "#555", marginBottom: "16px" }}>
+    Turn rough replies into clean, professional messages instantly without leaving your inbox.
+  </p>
+
+  <a
+    href="/chrome-extension"
+    style={{
+      display: "inline-block",
+      padding: "12px 20px",
+      background: "black",
+      color: "white",
+      borderRadius: "8px",
+      textDecoration: "none",
+      fontWeight: "600"
+    }}
+  >
+    Get Chrome Extension
+  </a>
+
+</div>
+
 <div style={{ marginBottom: "20px" }}>
   <a
 
@@ -790,7 +826,7 @@ const linkCardText = {
       
     }}
   >
-    Try it free
+    Try it with 3 free transformations
   </a>
 </div>
 
