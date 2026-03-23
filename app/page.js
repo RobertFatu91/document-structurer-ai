@@ -634,42 +634,8 @@ ${selectedEvent.description || "No description"}`;
 
 
 
-      <div style={{ marginTop: "60px" }}>
-  <h2 style={{ marginBottom: "20px" }}>Popular AI Email Tools</h2>
+      
 
-  <div style={{
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-    gap: "16px"
-  }}>
-
-    <a href="/seo/rewrite-email" style={{ padding: "16px", border: "1px solid #ddd", borderRadius: "10px", textDecoration: "none", color: "black" }}>
-      <h3>Rewrite Email</h3>
-      <p>Fix messy emails instantly using AI</p>
-    </a>
-
-    <a href="/seo/professional-email-generator" style={{ padding: "16px", border: "1px solid #ddd", borderRadius: "10px", textDecoration: "none", color: "black" }}>
-      <h3>Professional Email Generator</h3>
-      <p>Generate professional emails for work</p>
-    </a>
-
-    <a href="/seo/fix-email-mistakes" style={{ padding: "16px", border: "1px solid #ddd", borderRadius: "10px", textDecoration: "none", color: "black" }}>
-      <h3>Fix Email Mistakes</h3>
-      <p>Correct grammar and tone instantly</p>
-    </a>
-
-    <a href="/seo/improve-email-tone" style={{ padding: "16px", border: "1px solid #ddd", borderRadius: "10px", textDecoration: "none", color: "black" }}>
-      <h3>Improve Email Tone</h3>
-      <p>Make emails more polite and professional</p>
-    </a>
-
-    <a href="/seo/ai-email-assistant" style={{ padding: "16px", border: "1px solid #ddd", borderRadius: "10px", textDecoration: "none", color: "black" }}>
-      <h3>AI Email Assistant</h3>
-      <p>Your smart assistant for writing emails</p>
-    </a>
-
-  </div>
-</div>
 
       </div>
 
@@ -769,16 +735,21 @@ ${selectedEvent.description || "No description"}`;
   AI Assistant for Notes, Emails and Client Documents
 </h1>
 
-      <p style={{ fontSize: "18px", marginBottom: "10px" }}>
-  Perfect for self employed and service businesses
-</p>
+   <div style={{ maxWidth: "720px", marginBottom: "20px" }}>
+  <p style={{ fontSize: "18px", lineHeight: "1.7", marginBottom: "12px" }}>
+    Turn messy notes, rough emails and client information into clean, structured output in seconds.
+  </p>
 
-<p style={{ fontSize: "18px", color: "#555", marginBottom: "10px" }}>
-  Turn messy messages into professional client-ready text in seconds
-</p>
+  <p style={{ fontSize: "16px", lineHeight: "1.7", color: "#444", marginBottom: "10px" }}>
+    Use this tool when you want to save time, sound more professional, and stop wasting energy rewriting the same things manually.
+  </p>
 
-<div style={{ color: "#666", marginBottom: "30px" }}>
-  Save time. Write faster. Upgrade only when you need more power.
+  <ul style={{ lineHeight: "1.8", color: "#333", paddingLeft: "20px", marginBottom: "0" }}>
+    <li>Rewrite messy emails into professional replies</li>
+    <li>Turn rough notes into summaries and action items</li>
+    <li>Organize client details into cleaner structured text</li>
+    <li>Get usable output in one click instead of prompting AI manually</li>
+  </ul>
 </div>
 
 <div style={{ marginBottom: "20px" }}>
@@ -911,7 +882,119 @@ ${selectedEvent.description || "No description"}`;
   <button onClick={handleExportPDF} style={actionButton} disabled={!output}>
     PDF
   </button>
+
+  <div style={{ marginTop: "32px" }}>
+  <h2 style={{ marginBottom: "16px" }}>Explore more ways to use the tool</h2>
+
+  <div
+    style={{
+      display: "grid",
+      gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
+      gap: "24px",
+      alignItems: "start",
+    }}
+  >
+    <div>
+      <h3 style={{ marginBottom: "12px" }}>Popular SEO Pages</h3>
+
+      <div style={{ display: "grid", gap: "12px" }}>
+        <a
+          href="/seo/rewrite-email"
+          style={{ padding: "14px", border: "1px solid #ddd", borderRadius: "10px", textDecoration: "none", color: "black" }}
+        >
+          <strong>Rewrite Email</strong>
+          <div style={{ fontSize: "14px", color: "#555", marginTop: "4px" }}>
+            Fix messy emails instantly using AI
+          </div>
+        </a>
+
+        <a
+          href="/seo/professional-email-generator"
+          style={{ padding: "14px", border: "1px solid #ddd", borderRadius: "10px", textDecoration: "none", color: "black" }}
+        >
+          <strong>Professional Email Generator</strong>
+          <div style={{ fontSize: "14px", color: "#555", marginTop: "4px" }}>
+            Generate professional emails for work
+          </div>
+        </a>
+
+        <a
+          href="/seo/fix-email-mistakes"
+          style={{ padding: "14px", border: "1px solid #ddd", borderRadius: "10px", textDecoration: "none", color: "black" }}
+        >
+          <strong>Fix Email Mistakes</strong>
+          <div style={{ fontSize: "14px", color: "#555", marginTop: "4px" }}>
+            Correct grammar and tone instantly
+          </div>
+        </a>
+
+        <a
+          href="/seo/improve-email-tone"
+          style={{ padding: "14px", border: "1px solid #ddd", borderRadius: "10px", textDecoration: "none", color: "black" }}
+        >
+          <strong>Improve Email Tone</strong>
+          <div style={{ fontSize: "14px", color: "#555", marginTop: "4px" }}>
+            Make emails more polite and professional
+          </div>
+        </a>
+
+        <a
+          href="/seo/ai-email-assistant"
+          style={{ padding: "14px", border: "1px solid #ddd", borderRadius: "10px", textDecoration: "none", color: "black" }}
+        >
+          <strong>AI Email Assistant</strong>
+          <div style={{ fontSize: "14px", color: "#555", marginTop: "4px" }}>
+            Your smart assistant for writing emails
+          </div>
+        </a>
+      </div>
+    </div>
+
+    <div>
+      <h3 style={{ marginBottom: "12px" }}>Latest Guides</h3>
+
+      <div style={{ display: "grid", gap: "12px" }}>
+        <a
+          href="/blog/how-to-write-professional-emails-ai"
+          style={{ padding: "14px", border: "1px solid #ddd", borderRadius: "10px", textDecoration: "none", color: "black" }}
+        >
+          <strong>How to Write Professional Emails with AI</strong>
+        </a>
+
+        <a
+          href="/blog/how-to-organize-messy-notes-ai"
+          style={{ padding: "14px", border: "1px solid #ddd", borderRadius: "10px", textDecoration: "none", color: "black" }}
+        >
+          <strong>How to Organize Messy Notes with AI</strong>
+        </a>
+
+        <a
+          href="/blog/ai-meeting-notes-summary-guide"
+          style={{ padding: "14px", border: "1px solid #ddd", borderRadius: "10px", textDecoration: "none", color: "black" }}
+        >
+          <strong>AI Meeting Notes Summary Guide</strong>
+        </a>
+
+        <a
+          href="/blog/best-ai-tools-for-email-writing"
+          style={{ padding: "14px", border: "1px solid #ddd", borderRadius: "10px", textDecoration: "none", color: "black" }}
+        >
+          <strong>Best AI Tools for Email Writing</strong>
+        </a>
+
+        <a
+          href="/blog/how-to-write-follow-up-emails"
+          style={{ padding: "14px", border: "1px solid #ddd", borderRadius: "10px", textDecoration: "none", color: "black" }}
+        >
+          <strong>How to Write Follow Up Emails</strong>
+        </a>
+      </div>
+    </div>
+  </div>
 </div>
+</div>
+
+
 
 {detectedMode && (
   <div
