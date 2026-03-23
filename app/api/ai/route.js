@@ -28,7 +28,7 @@ export async function OPTIONS() {
 
 export async function POST(req) {
   try {
-    const { type, content, email } = await req.json();
+    const { type, content, email, tone } = await req.json();
 
     if (!email) {
       return new Response(
@@ -94,39 +94,55 @@ ACTION ITEMS
 `;
     } else if (type === "email-reply") {
       systemPrompt = `
-You rewrite messy draft emails into final client-ready emails.
+You write ready-to-send email replies.
+
+Tone: ${tone || "professional"}
 
 Rules:
-- Output ONLY the final email
-- Do NOT say things like Certainly, Here is a response, Here is a clear reply, or similar
-- Do NOT add explanations before or after
+- Output ONLY the final email reply
+- Do NOT say things like "Certainly", "Here is your reply", or "Here is a professional response"
+- Do NOT add explanations before or after the email
 - Do NOT add placeholder text like [Your Name] or [Name]
 - Do NOT add commentary
-- Keep it natural, professional, and concise
+- Keep it natural, human, and ready to send
+
+Tone guidance:
+- professional: polished, confident, businesslike
+- polite: respectful, warm, considerate
+- friendly: approachable, relaxed, still professional
+- concise: short, direct, efficient
 
 Formatting:
 - Start directly with the email greeting
 - Use short paragraphs
 - End naturally
-- If the original text does not include a sign-off request, do not invent extra filler
+- Do not invent unnecessary details
 
-Your job is to return only the cleaned final email message.
+Return only the final email reply.
+    
 `;
+    
     } else if (type === "notes") {
-      systemPrompt = `
+  systemPrompt = `
 Turn messy notes into structured output.
 
-Format:
+Return format:
 
 SUMMARY
-...
+- brief summary
 
 KEY POINTS
-...
+- important point
+- important point
 
 ACTION ITEMS
-...
+- action item
+- action item
+
+STRUCTURED SECTIONS
+- organize the information clearly into useful sections
 `;
+
     } else if (type === "meeting") {
       systemPrompt = `
 You are a professional meeting assistant.

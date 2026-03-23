@@ -1,7 +1,6 @@
 console.log("DOCUMENT STRUCTURER EXTENSION LOADED");
 alert("DOCUMENT STRUCTURER EXTENSION LOADED");
 
-
 function getUserEmail() {
   const accountButton = document.querySelector('a[aria-label*="@"]');
   if (!accountButton) return null;
@@ -90,18 +89,164 @@ function showUpgradePopup() {
   };
 }
 
-function injectButton() {
-  const composeWindows = document.querySelectorAll('div[role="dialog"]');
+function getOpenedEmailText() {
+  const allBodies = Array.from(document.querySelectorAll("div.a3s"));
+  const visibleBodies = allBodies.filter(
+    (el) => el.offsetParent !== null && el.innerText.trim().length > 20
+  );
 
-  composeWindows.forEach((composeWindow) => {
-    const composeBox = composeWindow.querySelector('[contenteditable="true"]');
-    if (!composeBox) return;
+  if (!visibleBodies.length) return "";
 
-    if (composeWindow.querySelector(".document-structurer-btn")) return;
+  return visibleBodies[visibleBodies.length - 1].innerText.trim();
+}
+
+function removeExistingMenus() {
+  const menus = document.querySelectorAll(".document-structurer-smart-reply-menu");
+  menus.forEach((menu) => menu.remove());
+}
+
+function createSmartReplyMenu(button, composeWindow, composeBox) {
+  removeExistingMenus();
+
+  const menu = document.createElement("div");
+  menu.className = "document-structurer-smart-reply-menu";
+  menu.style.position = "absolute";
+  menu.style.bottom = "52px";
+  menu.style.right = "60px";
+  menu.style.background = "#fff";
+  menu.style.border = "1px solid #ddd";
+  menu.style.borderRadius = "10px";
+  menu.style.boxShadow = "0 8px 24px rgba(0,0,0,0.12)";
+  menu.style.padding = "8px";
+  menu.style.zIndex = "999999";
+  menu.style.display = "grid";
+  menu.style.gap = "8px";
+  menu.style.minWidth = "180px";
+
+  const tones = ["Professional", "Polite", "Friendly", "Concise"];
+
+  tones.forEach((toneLabel) => {
+    const option = document.createElement("button");
+    option.textContent = toneLabel;
+    option.style.padding = "10px 12px";
+    option.style.border = "1px solid #eee";
+    option.style.borderRadius = "8px";
+    option.style.background = "white";
+    option.style.cursor = "pointer";
+    option.style.textAlign = "left";
+    option.style.fontSize = "14px";
+
+    option.addEventListener("click", () => {
+      menu.remove();
+      generateSmartReply(toneLabel.toLowerCase(), composeBox, button);
+    });
+
+    menu.appendChild(option);
+  });
+
+   const computedStyle = window.getComputedStyle(composeWindow);
+if (computedStyle.position === "static") {
+  composeWindow.style.position = "relative";
+}
+composeWindow.appendChild(menu);
+}
+
+function generateSmartReply(tone, composeBox, button) {
+  const originalEmailText = getOpenedEmailText();
+
+  if (!originalEmailText) {
+    alert("Could not detect the opened email content. Open the email thread and try again.");
+    return;
+  }
+
+  if (!composeBox) {
+    alert("Open the reply box first, then use Smart Reply.");
+    return;
+  }
+
+  button.textContent = "Working...";
+  button.disabled = true;
+
+  chrome.runtime.sendMessage(
+    {
+      type: "SMART_REPLY",
+      content: originalEmailText,
+      email: getUserEmail(),
+      tone,
+    },
+    (response) => {
+      try {
+        if (chrome.runtime.lastError) {
+          alert("Extension error: " + chrome.runtime.lastError.message);
+          button.textContent = "Smart Reply";
+          button.disabled = false;
+          return;
+        }
+
+        if (!response) {
+          alert("No response from background script");
+          button.textContent = "Smart Reply";
+          button.disabled = false;
+          return;
+        }
+
+        if (!response.ok) {
+          const errorMessage =
+            response.data?.error || response.error || "Something went wrong";
+
+          if (errorMessage === "Free limit reached. Upgrade to continue.") {
+            showUpgradePopup();
+          } else {
+            alert(errorMessage);
+          }
+
+          button.textContent = "Smart Reply";
+          button.disabled = false;
+          return;
+        }
+
+        if (response.data?.result) {
+          composeBox.innerText = response.data.result;
+        } else {
+          alert("No result returned");
+        }
+
+        button.textContent = "Smart Reply";
+        button.disabled = false;
+      } catch (error) {
+        alert("Content script error: " + error.message);
+        button.textContent = "Smart Reply";
+        button.disabled = false;
+      }
+    }
+  );
+}
+
+function injectSmartReplyButton() {
+  const editableBoxes = Array.from(
+    document.querySelectorAll('[contenteditable="true"][role="textbox"]')
+  );
+
+  editableBoxes.forEach((composeBox) => {
+    const container =
+      composeBox.closest('div[role="dialog"]') ||
+      composeBox.closest(".M9") ||
+      composeBox.closest(".nH") ||
+      composeBox.parentElement;
+
+    if (!container) return;
+
+    if (container.querySelector(".document-structurer-smart-reply-btn")) return;
+
+    const text = (composeBox.innerText || "").trim();
+
+    if (text.length > 0 && text !== "") {
+      return;
+    }
 
     const button = document.createElement("button");
-    button.textContent = "Make professional";
-    button.className = "document-structurer-btn";
+    button.textContent = "Smart Reply";
+    button.className = "document-structurer-smart-reply-btn";
 
     button.style.position = "absolute";
     button.style.bottom = "12px";
@@ -117,77 +262,32 @@ function injectButton() {
     button.style.fontWeight = "600";
 
     button.addEventListener("click", () => {
-      const draftText = composeBox.innerText.trim();
-
-      if (!draftText) {
-        alert("No draft text found");
-        return;
-      }
-
-      button.textContent = "Working...";
-      button.disabled = true;
-
-      chrome.runtime.sendMessage(
-        {
-          type: "STRUCTURE_EMAIL",
-          content: draftText,
-          email: getUserEmail(),
-        },
-        (response) => {
-          try {
-            if (chrome.runtime.lastError) {
-              alert("Extension error: " + chrome.runtime.lastError.message);
-              button.textContent = "Make professional";
-              button.disabled = false;
-              return;
-            }
-
-            if (!response) {
-              alert("No response from background script");
-              button.textContent = "Make professional";
-              button.disabled = false;
-              return;
-            }
-
-            if (!response.ok) {
-              const errorMessage =
-                response.data?.error || response.error || "Something went wrong";
-
-              if (errorMessage === "Free limit reached. Upgrade to continue.") {
-                showUpgradePopup();
-              } else {
-                alert(errorMessage);
-              }
-
-              button.textContent = "Make professional";
-              button.disabled = false;
-              return;
-            }
-
-            if (response.data?.result) {
-              composeBox.innerText = response.data.result;
-            } else {
-              alert("No result returned");
-            }
-
-            button.textContent = "Make professional";
-            button.disabled = false;
-          } catch (error) {
-            alert("Content script error: " + error.message);
-            button.textContent = "Make professional";
-            button.disabled = false;
-          }
-        }
-      );
+      createSmartReplyMenu(button, container, composeBox);
     });
 
-    composeWindow.style.position = "relative";
-    composeWindow.appendChild(button);
+    const computedStyle = window.getComputedStyle(container);
+    if (computedStyle.position === "static") {
+      container.style.position = "relative";
+    }
+
+    container.appendChild(button);
   });
 }
 
+document.addEventListener("click", (event) => {
+  const menu = document.querySelector(".document-structurer-smart-reply-menu");
+  if (!menu) return;
+
+  const clickedInsideMenu = menu.contains(event.target);
+  const clickedButton = event.target.closest(".document-structurer-smart-reply-btn");
+
+  if (!clickedInsideMenu && !clickedButton) {
+    menu.remove();
+  }
+});
+
 const observer = new MutationObserver(() => {
-  injectButton();
+  injectSmartReplyButton();
 });
 
 observer.observe(document.body, {
@@ -195,4 +295,4 @@ observer.observe(document.body, {
   subtree: true,
 });
 
-injectButton();
+injectSmartReplyButton();

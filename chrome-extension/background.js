@@ -1,5 +1,5 @@
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  if (message.type !== "STRUCTURE_EMAIL") return;
+  if (message.type !== "SMART_REPLY") return;
 
   fetch("https://document-structurer-ai.vercel.app/api/ai", {
     method: "POST",
@@ -10,6 +10,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       type: "email-reply",
       content: message.content,
       email: message.email,
+      tone: message.tone,
     }),
   })
     .then(async (res) => {
