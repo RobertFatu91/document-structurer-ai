@@ -632,23 +632,43 @@ ${selectedEvent.description || "No description"}`;
           )}
         </div>
 
-      <h2 style={{ marginTop: "40px" }}>
-Popular AI Email Tools
-</h2>
 
-<div style={{
-  display: "grid",
-  gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-  gap: "12px",
-  marginBottom: "40px"
-}}>
 
-<a href="/seo/rewrite-email">Rewrite Email AI</a>
-<a href="/seo/professional-email-generator">Professional Email Generator</a>
-<a href="/seo/fix-email-mistakes">Fix Email Mistakes</a>
-<a href="/seo/improve-email-tone">Improve Email Tone</a>
-<a href="/seo/ai-email-assistant">AI Email Assistant</a>
+      <div style={{ marginTop: "60px" }}>
+  <h2 style={{ marginBottom: "20px" }}>Popular AI Email Tools</h2>
 
+  <div style={{
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+    gap: "16px"
+  }}>
+
+    <a href="/seo/rewrite-email" style={{ padding: "16px", border: "1px solid #ddd", borderRadius: "10px", textDecoration: "none", color: "black" }}>
+      <h3>Rewrite Email</h3>
+      <p>Fix messy emails instantly using AI</p>
+    </a>
+
+    <a href="/seo/professional-email-generator" style={{ padding: "16px", border: "1px solid #ddd", borderRadius: "10px", textDecoration: "none", color: "black" }}>
+      <h3>Professional Email Generator</h3>
+      <p>Generate professional emails for work</p>
+    </a>
+
+    <a href="/seo/fix-email-mistakes" style={{ padding: "16px", border: "1px solid #ddd", borderRadius: "10px", textDecoration: "none", color: "black" }}>
+      <h3>Fix Email Mistakes</h3>
+      <p>Correct grammar and tone instantly</p>
+    </a>
+
+    <a href="/seo/improve-email-tone" style={{ padding: "16px", border: "1px solid #ddd", borderRadius: "10px", textDecoration: "none", color: "black" }}>
+      <h3>Improve Email Tone</h3>
+      <p>Make emails more polite and professional</p>
+    </a>
+
+    <a href="/seo/ai-email-assistant" style={{ padding: "16px", border: "1px solid #ddd", borderRadius: "10px", textDecoration: "none", color: "black" }}>
+      <h3>AI Email Assistant</h3>
+      <p>Your smart assistant for writing emails</p>
+    </a>
+
+  </div>
 </div>
 
       </div>
