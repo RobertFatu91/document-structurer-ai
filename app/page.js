@@ -747,25 +747,34 @@ const linkCardText = {
   </button>
 </div>
 
-      <h1 style={{ fontSize: "42px", marginBottom: "10px" }}>
-  AI Assistant for Notes, Emails and Client Documents
-</h1>
+<div style={{
+  textAlign: "center",
+  maxWidth: "700px",
+  margin: "0 auto",
+  marginBottom: "20px"
+}}>
 
-   <div style={{ maxWidth: "720px", marginBottom: "20px" }}>
-  <p style={{ fontSize: "18px", lineHeight: "1.7", marginBottom: "12px" }}>
+  <h1>AI Assistant for Notes, Emails and Client Documents</h1>
+
+  <p>
     Turn messy notes, rough emails and client information into clean, structured output in seconds.
   </p>
 
-  <p style={{ fontSize: "16px", lineHeight: "1.7", color: "#444", marginBottom: "10px" }}>
+  <p>
     Use this tool when you want to save time, sound more professional, and stop wasting energy rewriting the same things manually.
   </p>
 
-  <ul style={{ lineHeight: "1.8", color: "#333", paddingLeft: "20px", marginBottom: "0" }}>
+  <ul style={{
+    textAlign: "left",
+    display: "inline-block",
+    marginTop: "10px"
+  }}>
     <li>Rewrite messy emails into professional replies</li>
     <li>Turn rough notes into summaries and action items</li>
     <li>Organize client details into cleaner structured text</li>
     <li>Get usable output in one click instead of prompting AI manually</li>
   </ul>
+
 </div>
 
 <div style={{ marginBottom: "20px" }}>
