@@ -167,59 +167,59 @@ function generateSmartReply(tone, composeBox, button) {
   button.textContent = "Working...";
   button.disabled = true;
 
-  chrome.runtime.sendMessage(
-    {
-      type: "SMART_REPLY",
-      content: originalEmailText,
-      email: getUserEmail(),
-      tone,
-    },
-    (response) => {
-      try {
-        if (chrome.runtime.lastError) {
-          alert("Extension error: " + chrome.runtime.lastError.message);
-          button.textContent = "Smart Reply";
-          button.disabled = false;
-          return;
-        }
+  if (!chrome?.runtime?.sendMessage) {
+  alert("Extension runtime not available. Go to chrome://extensions and reload the extension.");
+  button.textContent = "Smart Reply";
+  button.disabled = false;
+  return;
+}
 
-        if (!response) {
-          alert("No response from background script");
-          button.textContent = "Smart Reply";
-          button.disabled = false;
-          return;
-        }
-
-        if (!response.ok) {
-          const errorMessage =
-            response.data?.error || response.error || "Something went wrong";
-
-          if (errorMessage === "Free limit reached. Upgrade to continue.") {
-            showUpgradePopup();
-          } else {
-            alert(errorMessage);
-          }
-
-          button.textContent = "Smart Reply";
-          button.disabled = false;
-          return;
-        }
-
-        if (!response || !response.ok) {
-          composeBox.innerText = response.data.result;
-        } else {
-          alert("No result returned");
-        }
-
+chrome.runtime.sendMessage(
+  {
+    type: "SMART_REPLY",
+    content: originalEmailText,
+    email: getUserEmail(),
+    tone,
+  },
+  (response) => {
+    try {
+      if (chrome.runtime.lastError) {
+        alert("Extension error: " + chrome.runtime.lastError.message);
         button.textContent = "Smart Reply";
         button.disabled = false;
-      } catch (error) {
-        alert("Content script error: " + error.message);
-        button.textContent = "Smart Reply";
-        button.disabled = false;
+        return;
       }
+
+      if (!response || !response.ok) {
+        const errorMessage =
+          response?.data?.error || response?.error || "Something went wrong";
+
+        if (errorMessage === "Free limit reached. Upgrade to continue.") {
+          showUpgradePopup();
+        } else {
+          alert(errorMessage);
+        }
+
+        button.textContent = "Smart Reply";
+        button.disabled = false;
+        return;
+      }
+
+      if (response.data?.result) {
+        composeBox.innerText = response.data.result;
+      } else {
+        alert("No result returned");
+      }
+
+      button.textContent = "Smart Reply";
+      button.disabled = false;
+    } catch (error) {
+      alert("Content script error: " + error.message);
+      button.textContent = "Smart Reply";
+      button.disabled = false;
     }
-  );
+  }
+);
 }
 
 function injectSmartReplyButton() {

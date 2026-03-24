@@ -74,16 +74,28 @@ export async function POST(req) {
   await setUserPlan(customerEmail, "ultra");
   await resetFreeUsage(customerEmail);
   console.log("PLAN UPDATED TO ULTRA FOR:", customerEmail);
-} else if (stripePriceId === process.env.STRIPE_EXTENSION_PRICE_ID_PRO) {
-  await setUserPlan(customerEmail, "smart_reply_pro");
-  await resetFreeUsage(customerEmail);
-  console.log("PLAN UPDATED TO SMART_REPLY_PRO FOR:", customerEmail);
-} else if (stripePriceId === process.env.STRIPE_EXTENSION_PRICE_ID_ULTRA) {
-  await setUserPlan(customerEmail, "smart_reply_ultra");
-  await resetFreeUsage(customerEmail);
-  console.log("PLAN UPDATED TO SMART_REPLY_ULTRA FOR:", customerEmail);
 }
-      }
+else if (stripePriceId === process.env.STRIPE_EXTENSION_PRICE_ID_PRO) {
+  await supabase
+    .from("profiles")
+    .update({
+      extension_plan: "smart_reply_pro",
+      extension_subscription_status: subscriptionStatus,
+    })
+    .eq("email", customerEmail);
+
+  console.log("EXTENSION PLAN UPDATED TO PRO:", customer.email);
+} else if (stripePriceId === process.env.STRIPE_EXTENSION_PRICE_ID_ULTRA) {
+  await supabase
+    .from("profiles")
+    .update({
+      extension_plan: "smart_reply_ultra",
+      extension_subscription_status: subscriptionStatus,
+    })
+    .eq("email", customerEmail);
+
+  console.log("EXTENSION PLAN UPDATED TO ULTRA:", customer.email);
+}  
     }
 
     if (event.type === "customer.subscription.updated") {
@@ -120,15 +132,34 @@ export async function POST(req) {
   await setUserPlan(customer.email, "ultra");
   await resetFreeUsage(customer.email);
   console.log("PLAN UPDATED TO ULTRA FROM SUB UPDATE:", customer.email);
-} else if (stripePriceId === process.env.STRIPE_EXTENSION_PRICE_ID_PRO) {
-  await setUserPlan(customer.email, "smart_reply_pro");
-  await resetFreeUsage(customer.email);
-  console.log("PLAN UPDATED TO SMART_REPLY_PRO FROM SUB UPDATE:", customer.email);
-} else if (stripePriceId === process.env.STRIPE_EXTENSION_PRICE_ID_ULTRA) {
-  await setUserPlan(customer.email, "smart_reply_ultra");
-  await resetFreeUsage(customer.email);
-  console.log("PLAN UPDATED TO SMART_REPLY_ULTRA FROM SUB UPDATE:", customer.email);
+} 
+  else if (stripePriceId === process.env.STRIPE_EXTENSION_PRICE_ID_PRO) {
+  await supabase
+    .from("profiles")
+    .update({
+      extension_plan: "smart_reply_pro",
+      extension_subscription_status: subscriptionStatus,
+    })
+    .eq("email", customer.email);
+
+  console.log("EXTENSION PLAN SET TO PRO:", customer.email);
 }
+
+
+} else if (stripePriceId === process.env.STRIPE_EXTENSION_PRICE_ID_ULTRA) {
+  await supabase
+    .from("profiles")
+    .update({
+      extension_plan: "smart_reply_ultra",
+      extension_subscription_status: subscriptionStatus,
+    })
+    .eq("email", customer.email);
+
+  console.log("EXTENSION PLAN SET TO ULTRA:", customer.email);
+}
+
+ 
+
           
         }
       }

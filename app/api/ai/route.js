@@ -46,7 +46,7 @@ export async function POST(req) {
 
 const { data: profile, error: profileError } = await supabase
   .from("profiles")
-  .select("plan, smart_reply_free_used")
+  .select("plan, extension_plan, smart_reply_free_used")
   .eq("email", email)
   .single();
 
@@ -59,12 +59,12 @@ if (profileError && profileError.code !== "PGRST116") {
 }
 
 const userPlan = profile?.plan || "free";
+const extensionPlan = profile?.extension_plan || "free";
 const freeUsed = profile?.smart_reply_free_used || 0;
 
 const hasPaidAccess =
-  userPlan === "smart_reply_pro" ||
-  userPlan === "smart_reply_ultra" ||
-  userPlan === "ultra";
+  extensionPlan === "smart_reply_pro" ||
+  extensionPlan === "smart_reply_ultra";
 
 if (!hasPaidAccess && freeUsed >= 3) {
   return Response.json(
