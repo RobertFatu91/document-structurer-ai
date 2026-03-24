@@ -9,11 +9,18 @@ import {
 
 
 import OpenAI from "openai";
+import { createClient } from "@supabase/supabase-js";
+
 
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY
+);
 
 export async function OPTIONS() {
   return new Response(null, {
@@ -29,6 +36,42 @@ export async function OPTIONS() {
 export async function POST(req) {
   try {
     const { type, content, email, tone } = await req.json();
+
+    if (!email) {
+  return Response.json(
+    { error: "Email is required" },
+    { status: 400 }
+  );
+}
+
+const { data: profile, error: profileError } = await supabase
+  .from("profiles")
+  .select("plan, smart_reply_free_used")
+  .eq("email", email)
+  .single();
+
+if (profileError && profileError.code !== "PGRST116") {
+  console.error("PROFILE FETCH ERROR:", profileError);
+  return Response.json(
+    { error: "Could not verify user plan" },
+    { status: 500 }
+  );
+}
+
+const userPlan = profile?.plan || "free";
+const freeUsed = profile?.smart_reply_free_used || 0;
+
+const hasPaidAccess =
+  userPlan === "smart_reply_pro" ||
+  userPlan === "smart_reply_ultra" ||
+  userPlan === "ultra";
+
+if (!hasPaidAccess && freeUsed >= 3) {
+  return Response.json(
+    { error: "Free limit reached. Upgrade to continue." },
+    { status: 403 }
+  );
+}
 
     if (!email) {
       return new Response(

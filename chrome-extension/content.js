@@ -205,7 +205,7 @@ function generateSmartReply(tone, composeBox, button) {
           return;
         }
 
-        if (response.data?.result) {
+        if (!response || !response.ok) {
           composeBox.innerText = response.data.result;
         } else {
           alert("No result returned");
