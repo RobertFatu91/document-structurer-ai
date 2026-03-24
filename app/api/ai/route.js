@@ -61,6 +61,10 @@ if (profileError && profileError.code !== "PGRST116") {
 const userPlan = profile?.plan || "free";
 const extensionPlan = profile?.extension_plan || "free";
 const freeUsed = profile?.smart_reply_free_used || 0;
+console.log("AI CHECK EMAIL:", email);
+console.log("AI CHECK PLAN:", userPlan);
+console.log("AI CHECK EXTENSION PLAN:", extensionPlan);
+console.log("AI CHECK FREE USED:", freeUsed);
 
 const hasPaidAccess =
   extensionPlan === "smart_reply_pro" ||
