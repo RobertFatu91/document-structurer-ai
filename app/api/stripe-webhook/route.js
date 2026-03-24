@@ -67,16 +67,22 @@ export async function POST(req) {
         });
 
         if (stripePriceId === process.env.STRIPE_PRICE_ID_PRO) {
-          await setUserPlan(customerEmail, "pro");
-          await resetFreeUsage(customerEmail);
-          console.log("PLAN UPDATED TO PRO FOR:", customerEmail);
-        }
-
-        if (stripePriceId === process.env.STRIPE_PRICE_ID_ULTRA) {
-          await setUserPlan(customerEmail, "ultra");
-          await resetFreeUsage(customerEmail);
-          console.log("PLAN UPDATED TO ULTRA FOR:", customerEmail);
-        }
+  await setUserPlan(customerEmail, "pro");
+  await resetFreeUsage(customerEmail);
+  console.log("PLAN UPDATED TO PRO FOR:", customerEmail);
+} else if (stripePriceId === process.env.STRIPE_PRICE_ID_ULTRA) {
+  await setUserPlan(customerEmail, "ultra");
+  await resetFreeUsage(customerEmail);
+  console.log("PLAN UPDATED TO ULTRA FOR:", customerEmail);
+} else if (stripePriceId === process.env.STRIPE_EXTENSION_PRICE_ID_PRO) {
+  await setUserPlan(customerEmail, "smart_reply_pro");
+  await resetFreeUsage(customerEmail);
+  console.log("PLAN UPDATED TO SMART_REPLY_PRO FOR:", customerEmail);
+} else if (stripePriceId === process.env.STRIPE_EXTENSION_PRICE_ID_ULTRA) {
+  await setUserPlan(customerEmail, "smart_reply_ultra");
+  await resetFreeUsage(customerEmail);
+  console.log("PLAN UPDATED TO SMART_REPLY_ULTRA FOR:", customerEmail);
+}
       }
     }
 
@@ -106,19 +112,24 @@ export async function POST(req) {
             subscriptionStatus,
           });
 
-          if (subscriptionStatus === "active") {
-            if (stripePriceId === process.env.STRIPE_PRICE_ID_PRO) {
-              await setUserPlan(customer.email, "pro");
-              await resetFreeUsage(customer.email);
-              console.log("PLAN UPDATED TO PRO FROM SUB UPDATE:", customer.email);
-            }
-
-            if (stripePriceId === process.env.STRIPE_PRICE_ID_ULTRA) {
-              await setUserPlan(customer.email, "ultra");
-              await resetFreeUsage(customer.email);
-              console.log("PLAN UPDATED TO ULTRA FROM SUB UPDATE:", customer.email);
-            }
-          }
+          if (stripePriceId === process.env.STRIPE_PRICE_ID_PRO) {
+  await setUserPlan(customer.email, "pro");
+  await resetFreeUsage(customer.email);
+  console.log("PLAN UPDATED TO PRO FROM SUB UPDATE:", customer.email);
+} else if (stripePriceId === process.env.STRIPE_PRICE_ID_ULTRA) {
+  await setUserPlan(customer.email, "ultra");
+  await resetFreeUsage(customer.email);
+  console.log("PLAN UPDATED TO ULTRA FROM SUB UPDATE:", customer.email);
+} else if (stripePriceId === process.env.STRIPE_EXTENSION_PRICE_ID_PRO) {
+  await setUserPlan(customer.email, "smart_reply_pro");
+  await resetFreeUsage(customer.email);
+  console.log("PLAN UPDATED TO SMART_REPLY_PRO FROM SUB UPDATE:", customer.email);
+} else if (stripePriceId === process.env.STRIPE_EXTENSION_PRICE_ID_ULTRA) {
+  await setUserPlan(customer.email, "smart_reply_ultra");
+  await resetFreeUsage(customer.email);
+  console.log("PLAN UPDATED TO SMART_REPLY_ULTRA FROM SUB UPDATE:", customer.email);
+}
+          
         }
       }
     }
