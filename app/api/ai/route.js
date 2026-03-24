@@ -66,15 +66,17 @@ console.log("AI CHECK PLAN:", userPlan);
 console.log("AI CHECK EXTENSION PLAN:", extensionPlan);
 console.log("AI CHECK FREE USED:", freeUsed);
 
-const hasPaidAccess =
+const isPro =
   extensionPlan === "smart_reply_pro" ||
   extensionPlan === "smart_reply_ultra";
 
-if (!hasPaidAccess && freeUsed >= 3) {
-  return Response.json(
-    { error: "Free limit reached. Upgrade to continue." },
-    { status: 403 }
-  );
+if (!isPro) {
+  if (freeUsed >= 3) {
+    return Response.json(
+      { error: "Free limit reached. Upgrade to continue." },
+      { status: 403 }
+    );
+  }
 }
 
     if (!email) {
