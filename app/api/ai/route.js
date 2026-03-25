@@ -67,6 +67,8 @@ console.log("AI CHECK EXTENSION PLAN:", extensionPlan);
 console.log("AI CHECK FREE USED:", freeUsed);
 
 const isPro =
+  userPlan === "pro" ||
+  userPlan === "ultra" ||
   extensionPlan === "smart_reply_pro" ||
   extensionPlan === "smart_reply_ultra";
 
@@ -96,24 +98,7 @@ if (!isPro) {
 
     console.log("EMAIL:", email);
 
-    const success = false;
-
-    if (!success) {
-      return new Response(
-        JSON.stringify({
-          error: "Free limit reached. Upgrade to continue.",
-        }),
-        {
-          status: 403,
-          headers: {
-            "Content-Type": "application/json",
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "POST, OPTIONS",
-            "Access-Control-Allow-Headers": "Content-Type",
-          },
-        }
-      );
-    }
+    
 
     let systemPrompt = "";
     

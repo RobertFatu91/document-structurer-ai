@@ -178,7 +178,7 @@ chrome.runtime.sendMessage(
   {
     type: "SMART_REPLY",
     content: originalEmailText,
-    email: getUserEmail(),
+    email: "robertofatu91@gmail.com",
     tone,
   },
   (response) => {
@@ -191,19 +191,19 @@ chrome.runtime.sendMessage(
       }
 
       if (!response || !response.ok) {
-        const errorMessage =
-          response?.data?.error || response?.error || "Something went wrong";
+  const errorMessage =
+    response?.data?.error || response?.error || "Something went wrong";
 
-        if (errorMessage === "Free limit reached. Upgrade to continue.") {
-          showUpgradePopup();
-        } else {
-          alert(errorMessage);
-        }
+  if (response?.status === 403) {
+    showUpgradePopup();
+  } else {
+    alert(errorMessage);
+  }
 
-        button.textContent = "Smart Reply";
-        button.disabled = false;
-        return;
-      }
+  button.textContent = "Smart Reply";
+  button.disabled = false;
+  return;
+}
 
       if (response.data?.result) {
         composeBox.innerText = response.data.result;
