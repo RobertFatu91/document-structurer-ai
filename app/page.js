@@ -797,19 +797,21 @@ const linkCardText = {
   </p>
 
   <a
-    href="/chrome-extension"
-    style={{
-      display: "inline-block",
-      padding: "12px 20px",
-      background: "black",
-      color: "white",
-      borderRadius: "8px",
-      textDecoration: "none",
-      fontWeight: "600"
-    }}
-  >
-    Get Chrome Extension
-  </a>
+  href="https://chromewebstore.google.com/detail/smart-reply-ai-for-gmail/pnmmkeiigibphhmncmpkcnjlekjoijnj?authuser=0&hl=en-GB&pli=1"
+  target="_blank"
+  rel="noopener noreferrer"
+  style={{
+    display: "inline-block",
+    padding: "12px 20px",
+    background: "black",
+    color: "white",
+    borderRadius: "8px",
+    textDecoration: "none",
+    fontWeight: "600"
+  }}
+>
+  Get Chrome Extension
+</a>
 
 </div>
 
