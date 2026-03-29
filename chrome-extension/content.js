@@ -169,7 +169,7 @@ function generateSmartReply(tone, composeBox, button) {
 
   if (!chrome?.runtime?.sendMessage) {
   alert("Extension runtime not available. Go to chrome://extensions and reload the extension.");
-  button.textContent = "Smart Reply";
+  button.textContent = "Make email professional";
   button.disabled = false;
   return;
 }
@@ -185,7 +185,7 @@ chrome.runtime.sendMessage(
     try {
       if (chrome.runtime.lastError) {
         alert("Extension error: " + chrome.runtime.lastError.message);
-        button.textContent = "Smart Reply";
+        button.textContent = "Make email professional";
         button.disabled = false;
         return;
       }
@@ -200,7 +200,7 @@ chrome.runtime.sendMessage(
     alert(errorMessage);
   }
 
-  button.textContent = "Smart Reply";
+  button.textContent = "Make email professional";
   button.disabled = false;
   return;
 }
@@ -211,11 +211,11 @@ chrome.runtime.sendMessage(
         alert("No result returned");
       }
 
-      button.textContent = "Smart Reply";
+      button.textContent = "Make email professional";
       button.disabled = false;
     } catch (error) {
       alert("Content script error: " + error.message);
-      button.textContent = "Smart Reply";
+      button.textContent = "Make email professional";
       button.disabled = false;
     }
   }
@@ -245,21 +245,30 @@ function injectSmartReplyButton() {
     }
 
     const button = document.createElement("button");
-    button.textContent = "Smart Reply";
+    button.textContent = "Make email professional";
     button.className = "document-structurer-smart-reply-btn";
 
     button.style.position = "absolute";
     button.style.bottom = "12px";
     button.style.right = "60px";
     button.style.zIndex = "999999";
-    button.style.padding = "8px 12px";
-    button.style.borderRadius = "6px";
-    button.style.border = "none";
-    button.style.background = "black";
-    button.style.color = "white";
-    button.style.cursor = "pointer";
-    button.style.fontSize = "12px";
-    button.style.fontWeight = "600";
+    button.style.padding = "10px 16px";
+button.style.borderRadius = "8px";
+button.style.border = "none";
+button.style.background = "#2563eb";
+button.style.color = "white";
+button.style.cursor = "pointer";
+button.style.fontSize = "13px";
+button.style.fontWeight = "700";
+button.style.boxShadow = "0 2px 8px rgba(37, 99, 235, 0.25)";
+button.style.transition = "all 0.2s ease";
+button.addEventListener("mouseenter", () => {
+  button.style.background = "#1d4ed8";
+});
+
+button.addEventListener("mouseleave", () => {
+  button.style.background = "#2563eb";
+});
 
     button.addEventListener("click", () => {
       createSmartReplyMenu(button, container, composeBox);
