@@ -279,7 +279,25 @@ button.addEventListener("mouseleave", () => {
       container.style.position = "relative";
     }
 
-    container.appendChild(button);
+    const helperText = document.createElement("div");
+helperText.textContent = "Fix tone and clarity instantly";
+helperText.className = "document-structurer-smart-reply-helper";
+
+helperText.style.position = "absolute";
+helperText.style.bottom = "48px";
+helperText.style.right = "60px";
+helperText.style.fontSize = "11px";
+helperText.style.fontWeight = "600";
+helperText.style.color = "#2563eb";
+helperText.style.background = "rgba(255, 255, 255, 0.95)";
+helperText.style.padding = "4px 8px";
+helperText.style.borderRadius = "6px";
+helperText.style.boxShadow = "0 1px 4px rgba(0,0,0,0.08)";
+helperText.style.zIndex = "999999";
+helperText.style.pointerEvents = "none";
+
+    container.appendChild(helperText);
+container.appendChild(button);
   });
 }
 
