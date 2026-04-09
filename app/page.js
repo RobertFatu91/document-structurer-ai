@@ -754,7 +754,8 @@ const linkCardText = {
   marginBottom: "20px"
 }}>
 
-  <h1>AI Assistant for Notes, Emails and Client Documents</h1>
+  <h1>Document Structurer AI</h1>
+<p>AI Assistant for Notes, Emails and Client Documents</p>
 
   <p>
     Turn messy notes, rough emails and client information into clean, structured output in seconds.
@@ -912,19 +913,21 @@ const linkCardText = {
   }}
 >
   <button
-    onClick={handleGenerate}
-    style={{
-      padding: "12px 20px",
-      background: "black",
-      color: "white",
-      border: "none",
-      borderRadius: "8px",
-      cursor: "pointer",
-      fontWeight: "bold",
-    }}
-  >
-    {loadingAI ? "Working..." : "Generate"}
-  </button>
+  onClick={handleGenerate}
+  disabled={!input.trim() || loadingAI}
+  style={{
+    padding: "12px 20px",
+    background: "black",
+    color: "white",
+    border: "none",
+    borderRadius: "8px",
+    cursor: (!input.trim() || loadingAI) ? "not-allowed" : "pointer",
+    opacity: (!input.trim() || loadingAI) ? 0.5 : 1,
+    fontWeight: "bold",
+  }}
+>
+  {loadingAI ? "Working..." : "Generate"}
+</button>
 
   <button onClick={handleCopy} style={actionButton} disabled={!output}>
     Copy
@@ -1522,6 +1525,14 @@ ${event.description || "No description"}`
           We usually respond within 24 hours.
         </p>
       </div>
+      <div style={{ textAlign: "center", marginTop: "20px", paddingBottom: "30px" }}>
+  <a href="/privacy" style={{ color: "#666", fontSize: "12px", marginRight: "12px" }}>
+    Privacy Policy
+  </a>
+  <a href="/terms" style={{ color: "#666", fontSize: "12px" }}>
+    Terms of Service
+  </a>
+</div>
     </div>
   );
 }
