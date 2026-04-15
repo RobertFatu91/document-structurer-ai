@@ -43,7 +43,12 @@ console.log("SESSION STATUS:", status);
 };
 
   const [plan, setPlan] = useState("free");
-  const [usageCount, setUsageCount] = useState(0);
+  const [usageCount, setUsageCount] = useState(() => {
+  if (typeof window !== "undefined") {
+    return Number(localStorage.getItem("usageCount") || 0);
+  }
+  return 0;
+});
 
   const syncPlanFromStripe = async () => {
   try {
@@ -199,8 +204,8 @@ ACTION ITEMS
   const handleGenerate = async () => {
   if (!input.trim()) return;
 
-  if (false) {
-  setUpgradeMessage("Free limit reached...");
+  if (usageCount >= 3 && plan === "free") {
+  setUpgradeMessage("Free limit reached. Upgrade to continue.");
   return;
 }
 
@@ -234,13 +239,13 @@ setDetectedMode(effectiveMode);
     setOutput(data.result);
     setUpgradeMessage("");
 
-    if (false) {
+    
   setUsageCount((prev) => {
     const newCount = prev + 1;
     localStorage.setItem("usageCount", String(newCount));
     return newCount;
   });
-}
+
   } catch (error) {
     if (error.message?.toLowerCase().includes("limit")) {
       setUpgradeMessage("You have used all 3 free transformations. Upgrade to continue.");
