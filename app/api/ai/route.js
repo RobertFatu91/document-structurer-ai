@@ -36,13 +36,10 @@ export async function OPTIONS() {
 export async function POST(req) {
   try {
     const { type, content, email, tone } = await req.json();
-
-    if (!email) {
-  return Response.json(
-    { error: "Email is required" },
-    { status: 400 }
-  );
+if (!email) {
+  return Response.json({ error: "Email is required" }, { status: 400 });
 }
+   
 
 const { data: profile, error: profileError } = await supabase
   .from("profiles")
@@ -81,20 +78,7 @@ if (!isPro) {
   }
 }
 
-    if (!email) {
-      return new Response(
-        JSON.stringify({ error: "No email address detected." }),
-        {
-          status: 400,
-          headers: {
-            "Content-Type": "application/json",
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "POST, OPTIONS",
-            "Access-Control-Allow-Headers": "Content-Type",
-          },
-        }
-      );
-    }
+    
 
     console.log("EMAIL:", email);
 

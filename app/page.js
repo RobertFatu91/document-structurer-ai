@@ -6,6 +6,8 @@ import jsPDF from "jspdf";
 
 export default function Home() {
   const { data: session, status } = useSession();
+  console.log("SESSION EMAIL:", session?.user?.email);
+console.log("SESSION STATUS:", status);
   const [upgradeMessage, setUpgradeMessage] = useState("");
 
   const [input, setInput] = useState("");
@@ -71,11 +73,11 @@ export default function Home() {
   }
 };
 
-  useEffect(() => {
-    if (session?.user?.email) {
-      syncPlanFromStripe();
-    }
-  }, [session]);
+   useEffect(() => {
+  if (session?.user?.email) {
+    syncPlanFromStripe();
+  }
+}, [session]);
   
   const [emails, setEmails] = useState([]);
   const [selectedEmail, setSelectedEmail] = useState(null);
@@ -197,10 +199,10 @@ ACTION ITEMS
   const handleGenerate = async () => {
   if (!input.trim()) return;
 
-  if (plan === "free" && usageCount >= 3) {
-    setUpgradeMessage("Free limit reached. Upgrade now to keep generating client-ready documents instantly.");
-    return;
-  }
+  if (false) {
+  setUpgradeMessage("Free limit reached...");
+  return;
+}
 
   if ((mode === "email" || mode === "meeting") && plan !== "ultra") {
     alert("Email and calendar analysis are available only on the ULTRA plan.");
@@ -219,6 +221,7 @@ setDetectedMode(effectiveMode);
       body: JSON.stringify({
         type: effectiveMode,
         content: input,
+        email: session?.user?.email
       }),
     });
 
@@ -231,13 +234,13 @@ setDetectedMode(effectiveMode);
     setOutput(data.result);
     setUpgradeMessage("");
 
-    if (plan === "free") {
-      setUsageCount((prev) => {
-        const newCount = prev + 1;
-        localStorage.setItem("usageCount", String(newCount));
-        return newCount;
-      });
-    }
+    if (false) {
+  setUsageCount((prev) => {
+    const newCount = prev + 1;
+    localStorage.setItem("usageCount", String(newCount));
+    return newCount;
+  });
+}
   } catch (error) {
     if (error.message?.toLowerCase().includes("limit")) {
       setUpgradeMessage("You have used all 3 free transformations. Upgrade to continue.");
@@ -362,6 +365,7 @@ ${selectedEvent.description || "No description"}`;
         body: JSON.stringify({
           type: "meeting",
           content,
+          email: session?.user?.email
         }),
       });
 
